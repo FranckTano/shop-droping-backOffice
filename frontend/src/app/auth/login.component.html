@@ -1,0 +1,19 @@
+<div class="grid justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="col-12 md:col-6 lg:col-4">
+    <p-card header="Shop-Dropping Backoffice">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3">
+        <div class="flex flex-column gap-2">
+          <label for="username">Username</label>
+          <input pInputText id="username" type="text" formControlName="username" />
+        </div>
+
+        <div class="flex flex-column gap-2">
+          <label for="password">Password</label>
+          <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false"></p-password>
+        </div>
+
+        <button pButton type="submit" label="Se connecter" [loading]="loading"></button>
+      </form>
+    </p-card>
+  </div>
+</div>

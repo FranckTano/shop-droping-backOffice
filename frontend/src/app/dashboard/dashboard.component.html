@@ -1,0 +1,38 @@
+<div class="grid">
+  <div class="col-12 md:col-3">
+    <p-card header="Total commandes">
+      <h2>{{ stats?.totalOrders || 0 }}</h2>
+    </p-card>
+  </div>
+  <div class="col-12 md:col-3">
+    <p-card header="Commandes en cours">
+      <h2>{{ stats?.pendingOrders || 0 }}</h2>
+    </p-card>
+  </div>
+  <div class="col-12 md:col-3">
+    <p-card header="Commandes livrées">
+      <h2>{{ stats?.deliveredOrders || 0 }}</h2>
+    </p-card>
+  </div>
+  <div class="col-12 md:col-3">
+    <p-card header="Chiffre d'affaires">
+      <h2>{{ stats?.totalRevenue || 0 }}</h2>
+    </p-card>
+  </div>
+
+  <div class="col-12 lg:col-6">
+    <p-card header="Commandes par jour">
+      <div style="height: 320px;">
+        <p-chart type="line" [data]="ordersChartData" [options]="chartOptions"></p-chart>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-12 lg:col-6">
+    <p-card header="Revenus par mois">
+      <div style="height: 320px;">
+        <p-chart type="bar" [data]="revenueChartData" [options]="chartOptions"></p-chart>
+      </div>
+    </p-card>
+  </div>
+</div>

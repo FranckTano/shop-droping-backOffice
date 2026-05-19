@@ -1,0 +1,29 @@
+<p-card header="Gestion des commandes">
+  <p-table [value]="commandes" [tableStyle]="{ 'min-width': '60rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th>Total</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-commande>
+      <tr>
+        <td>{{ commande.id }}</td>
+        <td>{{ commande.clientName }}</td>
+        <td>{{ commande.date | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <p-dropdown
+            [options]="statusOptions"
+            [ngModel]="commande.status"
+            (onChange)="onStatusChange(commande, $event.value)">
+          </p-dropdown>
+        </td>
+        <td>{{ commande.total }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

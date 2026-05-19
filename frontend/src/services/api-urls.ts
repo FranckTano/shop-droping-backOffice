@@ -1,0 +1,21 @@
+export const urls = {
+	connexion: '/ws/securite/auth',
+	projet: '/ws/projet',
+	ressourceHumaine: '/ws/ressource-humaine',
+	risque: '/ws/risque',
+	utilisateur: '/ws/utilisateur',
+	activite: '/ws/activite',
+	phase: '/ws/phase',
+	financement: '/ws/financement',
+	bailleur: '/ws/bailleur',
+	ouvrage: '/ws/ouvrage',
+	prestataire: '/ws/prestataire',
+	projet_prestataire: '/ws/projet-prestataire',
+	activiteOuvrage: '/ws/activite-ouvrage',
+	documentProjet: '/ws/document-projet',
+	genererRapport: '/ws/fiches',
+	exportExcel: '/ws/fiches',
+	type_travaux: '/ws/type-travaux',
+	localite: '/ws/localite'
+
+};

@@ -1,0 +1,32 @@
+<p-card header="Ajout produit">
+  <form [formGroup]="form" (ngSubmit)="save()" class="grid">
+    <div class="col-12 md:col-6">
+      <label for="name">Nom</label>
+      <input id="name" pInputText formControlName="name" class="w-full" />
+    </div>
+
+    <div class="col-12 md:col-6">
+      <label for="price">Prix</label>
+      <input id="price" pInputText type="number" formControlName="price" class="w-full" />
+    </div>
+
+    <div class="col-12">
+      <label for="description">Description</label>
+      <textarea id="description" pInputText formControlName="description" rows="4" class="w-full"></textarea>
+    </div>
+
+    <div class="col-12">
+      <p-fileUpload
+        mode="basic"
+        chooseLabel="Choisir une image"
+        [auto]="false"
+        [customUpload]="true"
+        (onSelect)="onImageSelect($event)">
+      </p-fileUpload>
+    </div>
+
+    <div class="col-12">
+      <button pButton type="submit" label="Enregistrer" [loading]="saving"></button>
+    </div>
+  </form>
+</p-card>

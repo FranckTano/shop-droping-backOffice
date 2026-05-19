@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+@use './tailwind.css';
+@use './assets/layout/layout.scss';
+@use 'primeicons/primeicons.css';
+@use './assets/demo/demo.scss';
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+	--shop-primary: #d9480f;
+	--shop-accent: #1158a5;
+	--shop-text: #0f172a;
+	--shop-muted: #64748b;
+}
+
+body {
+	font-family: 'Poppins', 'Segoe UI', sans-serif;
+	color: var(--shop-text);
+	background:
+		radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.1), transparent 35%),
+		radial-gradient(circle at 88% 2%, rgba(14, 116, 144, 0.1), transparent 30%),
+		#f8fafc;
+}
+
+.p-button {
+	border-radius: 0.7rem;
+}
