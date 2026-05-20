@@ -1,38 +1,25 @@
 import {Component, inject} from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import {LayoutService} from "@/layout/service/layout.service";
-import {SHA1, VERSION} from "../../../../environments/version";
 import {NgClass} from "@angular/common";
-import {Image} from "primeng/image";
 
 @Component({
 	standalone: true,
 	selector: '[app-footer]',
-	imports: [ButtonModule, NgClass, Image],
+	imports: [ButtonModule, NgClass],
 	template: `
-		<div class="flex justify-start items-center">
-			<span class="font-medium text-lg text-muted-color">
-				<p-image src="/images/logo/logo-SBEE{{layoutService.isDarkTheme() ? '.jpg' : '.png'}}" width="25"/>
-			</span>
-			<span
-				class="titre-logo"
+		<div class="flex justify-start items-center gap-2">
+			<i class="pi pi-shopping-bag text-primary" style="font-size: 1.1rem"></i>
+			<span class="titre-logo font-semibold"
 			[ngClass]="{
 				'text-white': layoutService.isDarkTheme(),
-				'text-blue-600': !layoutService.isDarkTheme(),
-				'titre-slim-plus': layoutService.isSlimPlus(),
-				'titre-slim': layoutService.isSlim(),
-				'titre-normal': !layoutService.isSlim() && !layoutService.isSlimPlus()
-			}"
-			>
-				{{ layoutService.isSlimPlus() ? 'SBEE' : 'SBEE' }}
+				'text-primary': !layoutService.isDarkTheme()
+			}">
+				{{ layoutService.isSlimPlus() ? 'SD' : 'Shop Droping' }}
 			</span>
 		</div>
 		<div class="flex gap-0 items-center">
-			<small>Développé par <a href="https://eburtis.com/" target="_blank">EBURTIS</a></small>
-			<!--
-				<button pButton icon="fa fa-code-fork" rounded text severity="secondary"></button>
-				<span class="version-info">{{ VERSION }} - {{ SHA1 }}</span>
-			-->
+			<small class="text-muted-color">&copy; {{ annee }} Shop Droping. Tous droits réservés.</small>
 		</div>`,
 	host: {
 		class: 'layout-footer'
@@ -93,6 +80,5 @@ import {Image} from "primeng/image";
 })
 export class AppFooter {
 	layoutService = inject(LayoutService);
-	protected readonly VERSION = VERSION;
-	protected readonly SHA1 = SHA1;
+	readonly annee = new Date().getFullYear();
 }
