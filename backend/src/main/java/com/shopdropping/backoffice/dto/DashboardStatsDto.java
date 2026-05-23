@@ -6,6 +6,9 @@ import java.util.List;
 public record DashboardStatsDto(
         long totalCommandes,
         long commandesEnAttente,
+        long commandesConfirmees,
+        long commandesEnCours,
+        long commandesExpediees,
         long commandesValidees,
         long commandesLivrees,
         long commandesAnnulees,

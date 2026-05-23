@@ -145,11 +145,14 @@ import { AdminCommandeService, Commande, StatutCommande } from '../../../../serv
 
         <!-- Dialog Changement Statut -->
         <p-dialog [(visible)]="statutVisible" header="Changer le statut"
-                  [modal]="true" [style]="{width:'360px'}" [draggable]="false">
-            <div class="field">
-                <label>Nouveau statut</label>
+                  [modal]="true" [style]="{width:'380px'}" [draggable]="false">
+            <div class="field" style="padding: 0.5rem 0;">
+                <label style="font-size:0.85rem;font-weight:600;color:#374151;display:block;margin-bottom:0.5rem;">Nouveau statut</label>
                 <p-dropdown [options]="statutsOptions" [(ngModel)]="nouveauStatut"
-                            optionLabel="label" optionValue="value" styleClass="w-full mt-2"></p-dropdown>
+                            optionLabel="label" optionValue="value"
+                            appendTo="body"
+                            styleClass="w-full"
+                            placeholder="Sélectionner un statut"></p-dropdown>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
@@ -209,20 +212,24 @@ export class AdminCommandesComponent implements OnInit {
     nouveauStatut: StatutCommande | null = null;
 
     statutsFiltre = [
-        { label: 'Toutes', value: 'TOUS' },
+        { label: 'Toutes',     value: 'TOUS' },
         { label: 'En attente', value: 'EN_ATTENTE' },
-        { label: 'Validées', value: 'VALIDEE' },
-        { label: 'Livrées', value: 'LIVREE' },
-        { label: 'Annulées', value: 'ANNULEE' },
-        { label: 'Standby', value: 'STANDBY' }
+        { label: 'Confirmées', value: 'CONFIRMEE' },
+        { label: 'En cours',   value: 'EN_COURS' },
+        { label: 'Expédiées',  value: 'EXPEDIEE' },
+        { label: 'Livrées',    value: 'LIVREE' },
+        { label: 'Annulées',   value: 'ANNULEE' },
+        { label: 'Standby',    value: 'STANDBY' }
     ];
 
     statutsOptions = [
-        { label: 'En attente', value: 'EN_ATTENTE' },
-        { label: 'Validée', value: 'VALIDEE' },
-        { label: 'Livrée', value: 'LIVREE' },
-        { label: 'Annulée', value: 'ANNULEE' },
-        { label: 'Standby', value: 'STANDBY' }
+        { label: '🕐 En attente',        value: 'EN_ATTENTE' },
+        { label: '✅ Confirmée',          value: 'CONFIRMEE' },
+        { label: '📦 En cours (prépa.)', value: 'EN_COURS' },
+        { label: '🚚 Expédiée',          value: 'EXPEDIEE' },
+        { label: '✔️ Livrée',            value: 'LIVREE' },
+        { label: '❌ Annulée',           value: 'ANNULEE' },
+        { label: '⏸️ Standby',          value: 'STANDBY' }
     ];
 
     constructor(
@@ -313,14 +320,28 @@ export class AdminCommandesComponent implements OnInit {
 
     statutSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
         const m: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
-            LIVREE: 'success', VALIDEE: 'info', EN_ATTENTE: 'warn', ANNULEE: 'danger', STANDBY: 'secondary'
+            EN_ATTENTE: 'warn',
+            CONFIRMEE:  'info',
+            EN_COURS:   'info',
+            EXPEDIEE:   'info',
+            VALIDEE:    'success',
+            LIVREE:     'success',
+            ANNULEE:    'danger',
+            STANDBY:    'secondary'
         };
         return m[statut] ?? 'secondary';
     }
 
     labelStatut(statut: string): string {
         const m: Record<string, string> = {
-            EN_ATTENTE: 'En attente', VALIDEE: 'Validée', LIVREE: 'Livrée', ANNULEE: 'Annulée', STANDBY: 'Standby'
+            EN_ATTENTE: 'En attente',
+            CONFIRMEE:  'Confirmée',
+            EN_COURS:   'En cours',
+            EXPEDIEE:   'Expédiée',
+            VALIDEE:    'Validée',
+            LIVREE:     'Livrée',
+            ANNULEE:    'Annulée',
+            STANDBY:    'Standby'
         };
         return m[statut] ?? statut;
     }

@@ -61,6 +61,13 @@ import { AuthService } from '../../../../services/auth.service';
                         <span class="kpi-label">Produits actifs</span>
                     </div>
                 </div>
+                <div class="kpi-card kpi-en-cours">
+                    <div class="kpi-icon"><i class="pi pi-send"></i></div>
+                    <div class="kpi-body">
+                        <span class="kpi-value">{{ ((stats?.commandesConfirmees ?? 0) + (stats?.commandesEnCours ?? 0) + (stats?.commandesExpediees ?? 0)) | number }}</span>
+                        <span class="kpi-label">En traitement</span>
+                    </div>
+                </div>
                 <div class="kpi-card kpi-annulees">
                     <div class="kpi-icon"><i class="pi pi-times-circle"></i></div>
                     <div class="kpi-body">
@@ -170,6 +177,7 @@ import { AuthService } from '../../../../services/auth.service';
         .kpi-livrees .kpi-icon { background: #dcfce7; color: #16a34a; }
         .kpi-ca .kpi-icon { background: #f0fdf4; color: #15803d; }
         .kpi-produits .kpi-icon { background: #f3e8ff; color: #9333ea; }
+        .kpi-en-cours .kpi-icon { background: #eff6ff; color: #2563eb; }
         .kpi-annulees .kpi-icon { background: #fef2f2; color: #dc2626; }
         .kpi-value { display: block; font-size: 1.35rem; font-weight: 700; color: #0f172a; }
         .kpi-label { font-size: 0.78rem; color: #64748b; }
@@ -237,13 +245,17 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     statutSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-        switch (statut) {
-            case 'LIVREE': return 'success';
-            case 'VALIDEE': return 'info';
-            case 'EN_ATTENTE': return 'warn';
-            case 'ANNULEE': return 'danger';
-            default: return 'secondary';
-        }
+        const m: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
+            EN_ATTENTE: 'warn',
+            CONFIRMEE:  'info',
+            EN_COURS:   'info',
+            EXPEDIEE:   'info',
+            VALIDEE:    'success',
+            LIVREE:     'success',
+            ANNULEE:    'danger',
+            STANDBY:    'secondary'
+        };
+        return m[statut] ?? 'secondary';
     }
 
     formatDate(date: string): string {

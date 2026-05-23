@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 export interface DashboardStats {
     totalCommandes: number;
     commandesEnAttente: number;
+    commandesConfirmees: number;
+    commandesEnCours: number;
+    commandesExpediees: number;
     commandesValidees: number;
     commandesLivrees: number;
     commandesAnnulees: number;

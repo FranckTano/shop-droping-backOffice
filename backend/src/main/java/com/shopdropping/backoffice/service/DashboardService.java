@@ -25,11 +25,14 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardStatsDto getStats() {
         long totalCommandes = commandeRepository.count();
-        long enAttente = commandeRepository.countByStatut(CommandeStatus.EN_ATTENTE);
-        long validees = commandeRepository.countByStatut(CommandeStatus.VALIDEE);
-        long livrees = commandeRepository.countByStatut(CommandeStatus.LIVREE);
-        long annulees = commandeRepository.countByStatut(CommandeStatus.ANNULEE);
-        long standby = commandeRepository.countByStatut(CommandeStatus.STANDBY);
+        long enAttente   = commandeRepository.countByStatut(CommandeStatus.EN_ATTENTE);
+        long confirmees  = commandeRepository.countByStatut(CommandeStatus.CONFIRMEE);
+        long enCours     = commandeRepository.countByStatut(CommandeStatus.EN_COURS);
+        long expediees   = commandeRepository.countByStatut(CommandeStatus.EXPEDIEE);
+        long validees    = commandeRepository.countByStatut(CommandeStatus.VALIDEE);
+        long livrees     = commandeRepository.countByStatut(CommandeStatus.LIVREE);
+        long annulees    = commandeRepository.countByStatut(CommandeStatus.ANNULEE);
+        long standby     = commandeRepository.countByStatut(CommandeStatus.STANDBY);
         BigDecimal ca = commandeRepository.sumChiffreAffaires();
         BigDecimal caLivrees = commandeRepository.sumChiffreAffairesLivrees();
 
@@ -46,7 +49,7 @@ public class DashboardService {
                 .toList();
 
         return new DashboardStatsDto(
-                totalCommandes, enAttente, validees, livrees, annulees, standby,
+                totalCommandes, enAttente, confirmees, enCours, expediees, validees, livrees, annulees, standby,
                 ca, caLivrees,
                 totalProduits, produitsActifs, produitsArchives,
                 commandesParJour, caParMois

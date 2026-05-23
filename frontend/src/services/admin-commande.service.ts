@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export type StatutCommande = 'EN_ATTENTE' | 'VALIDEE' | 'LIVREE' | 'ANNULEE' | 'STANDBY';
+export type StatutCommande = 'EN_ATTENTE' | 'CONFIRMEE' | 'EN_COURS' | 'EXPEDIEE' | 'VALIDEE' | 'LIVREE' | 'ANNULEE' | 'STANDBY';
 
 export interface LigneCommande {
     id: number;
