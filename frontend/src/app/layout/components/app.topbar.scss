@@ -2,6 +2,24 @@
 	font-family: "Bauhaus 93", serif;
 	font-weight: normal;
 	font-size: 35px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Grandes tablettes (≤ 1280px) */
+@media (max-width: 1280px) {
+	.titre { font-size: 26px; }
+}
+
+/* Tablettes (≤ 1024px) */
+@media (max-width: 1024px) {
+	.titre { font-size: 22px; }
+}
+
+/* Petites tablettes / paysage mobile (≤ 768px) */
+@media (max-width: 768px) {
+	.titre { font-size: 18px; }
 }
 
 /* Masquer les 3 boutons dans layout-topbar-actions-end */

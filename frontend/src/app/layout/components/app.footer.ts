@@ -15,11 +15,11 @@ import {NgClass} from "@angular/common";
 				'text-white': layoutService.isDarkTheme(),
 				'text-primary': !layoutService.isDarkTheme()
 			}">
-				{{ layoutService.isSlimPlus() ? 'SD' : 'Shop Droping' }}
+				{{ layoutService.isSlimPlus() ? 'SD' : 'MOMO DROP' }}
 			</span>
 		</div>
 		<div class="flex gap-0 items-center">
-			<small class="text-muted-color">&copy; {{ annee }} Shop Droping. Tous droits réservés.</small>
+			<small class="text-muted-color">&copy; {{ annee }} MOMO DROP. Tous droits réservés.</small>
 		</div>`,
 	host: {
 		class: 'layout-footer'
@@ -64,16 +64,14 @@ import {NgClass} from "@angular/common";
 		}
 
 		@media (max-width: 768px) {
-			.titre-slim-plus {
-				font-size: 16px;
-			}
+			.titre-slim-plus { font-size: 16px; }
+			.titre-slim      { font-size: 14px; }
+			.titre-normal    { font-size: 18px; }
 
-			.titre-slim {
-				font-size: 14px;
-			}
-
-			.titre-normal {
-				font-size: 18px;
+			:host.layout-footer {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 0.25rem;
 			}
 		}
 	`
