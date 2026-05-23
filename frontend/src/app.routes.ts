@@ -44,6 +44,12 @@ export const appRoutes: Routes = [
                 data: { breadcrumb: 'Commandes' }
             },
             {
+                path: 'commandes/:id',
+                loadComponent: () => import('./app/pages/admin/commandes/admin-commandes.component')
+                    .then(c => c.AdminCommandesComponent),
+                data: { breadcrumb: 'Commandes' }
+            },
+            {
                 path: 'utilisateurs',
                 canActivate: [superAdminGuard],
                 loadComponent: () => import('./app/pages/admin/utilisateurs/admin-utilisateurs.component')

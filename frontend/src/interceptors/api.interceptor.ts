@@ -1,10 +1,13 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
 import { environment } from '@environments/environment';
 
 export const apiInterceptor: HttpInterceptorFn = (req, next) => {
     const apiBaseUrl = environment.apiUrl.replace('/api', '');
     const token = localStorage.getItem('access_token');
+    const router = inject(Router);
 
     const isAbsoluteUrl = (url: string) => /^https?:\/\//i.test(url);
     const isAssetUrl = (url: string) =>
@@ -33,5 +36,13 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
         setHeaders: headers,
     });
 
-    return next(authReq);
+    return next(authReq).pipe(
+        catchError(error => {
+            if (error.status === 401) {
+                localStorage.removeItem('access_token');
+                router.navigate(['/connexion']);
+            }
+            return throwError(() => error);
+        })
+    );
 };

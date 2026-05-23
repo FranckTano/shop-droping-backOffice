@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -226,7 +227,8 @@ export class AdminCommandesComponent implements OnInit {
 
     constructor(
         private commandeService: AdminCommandeService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void { this.charger(); }
@@ -239,6 +241,15 @@ export class AdminCommandesComponent implements OnInit {
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 this.appliquerFiltres();
                 this.chargement = false;
+                /* Auto-ouvrir la commande si un ID est présent dans l'URL (lien WhatsApp) */
+                const idParam = this.route.snapshot.paramMap.get('id');
+                if (idParam) {
+                    const id = parseInt(idParam, 10);
+                    const cible = this.commandes.find(c => c.id === id);
+                    if (cible) {
+                        setTimeout(() => this.ouvrirDetail(cible), 350);
+                    }
+                }
             },
             error: () => { this.chargement = false; }
         });
