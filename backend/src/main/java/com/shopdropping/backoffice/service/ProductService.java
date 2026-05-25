@@ -33,6 +33,11 @@ public class ProductService {
         return productRepository.findArchivesWithCategorie().stream().map(this::toDto).toList();
     }
 
+    public List<ProduitDto> rechercher(String q) {
+        if (q == null || q.isBlank()) return findAll();
+        return productRepository.rechercher(q).stream().map(this::toDto).toList();
+    }
+
     public ProduitDto findById(Long id) {
         return toDto(productRepository.findByIdWithCategorie(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id)));

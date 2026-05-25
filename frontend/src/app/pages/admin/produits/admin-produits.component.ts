@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -42,10 +44,14 @@ import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../.
             </div>
 
             <!-- Barre de recherche -->
-            <div class="search-bar">
-                <i class="pi pi-search"></i>
-                <input type="text" [(ngModel)]="recherche" (input)="filtrer()"
-                       placeholder="Rechercher un maillot..." />
+            <div class="search-bar" [class.search-bar--loading]="rechercheEnCours">
+                <i class="pi pi-search" *ngIf="!rechercheEnCours"></i>
+                <span *ngIf="rechercheEnCours" class="search-spinner"></span>
+                <input type="text" [(ngModel)]="recherche" (input)="onRecherche()"
+                       placeholder="Rechercher par nom, équipe, marque..." />
+                <button *ngIf="recherche" class="search-clear" (click)="recherche=''; filtrer()" title="Effacer">
+                    <i class="pi pi-times"></i>
+                </button>
             </div>
 
             <!-- Grid produits -->
@@ -221,8 +227,13 @@ import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../.
         .prod-header h1 { margin: .3rem 0; font-size: 1.6rem; color: #0f172a; }
         .prod-header p { margin: 0; color: #64748b; }
         .header-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
-        .search-bar { display: flex; align-items: center; gap: .6rem; padding: .6rem 1rem; border: 1px solid rgba(15,23,42,.1); border-radius: 999px; background: #fff; margin-bottom: 1rem; max-width: 500px; }
-        .search-bar input { border: none; outline: none; background: transparent; flex: 1; }
+        .search-bar { display: flex; align-items: center; gap: .6rem; padding: .6rem 1rem; border: 1px solid rgba(15,23,42,.1); border-radius: 999px; background: #fff; margin-bottom: 1rem; max-width: 500px; transition: border-color .2s; }
+        .search-bar:focus-within, .search-bar--loading { border-color: #6366f1; }
+        .search-bar input { border: none; outline: none; background: transparent; flex: 1; font-family: inherit; }
+        .search-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(99,102,241,.2); border-top-color: #6366f1; border-radius: 50%; animation: admin-spin 0.7s linear infinite; flex-shrink: 0; }
+        @keyframes admin-spin { to { transform: rotate(360deg); } }
+        .search-clear { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 0; display: flex; align-items: center; }
+        .search-clear:hover { color: #0f172a; }
 
         .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
         .prod-card { background: #fff; border: 1px solid rgba(15,23,42,.08); border-radius: 1rem; overflow: hidden; transition: transform .2s, box-shadow .2s; }
@@ -279,12 +290,15 @@ import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../.
         }
     `]
 })
-export class AdminProduitsComponent implements OnInit {
+export class AdminProduitsComponent implements OnInit, OnDestroy {
     produits: ProduitAdmin[] = [];
     produitsFiltres: ProduitAdmin[] = [];
     produitsArchives: ProduitAdmin[] = [];
     chargement = true;
+    rechercheEnCours = false;
     recherche = '';
+    private searchSubject = new Subject<string>();
+    private destroy$ = new Subject<void>();
     voirArchivesMode = false;
 
     formulaireVisible = false;
@@ -321,7 +335,36 @@ export class AdminProduitsComponent implements OnInit {
         return this.imagePreview ? "Changer l'image" : 'Choisir une image';
     }
 
-    ngOnInit(): void { this.charger(); }
+    ngOnInit(): void {
+        this.searchSubject.pipe(
+            debounceTime(380),
+            distinctUntilChanged(),
+            switchMap(terme => {
+                if (!terme.trim()) {
+                    this.rechercheEnCours = false;
+                    return of(this.produits);
+                }
+                this.rechercheEnCours = true;
+                return this.produitService.rechercher(terme.trim());
+            })
+        ).subscribe({
+            next: (resultats) => {
+                this.rechercheEnCours = false;
+                this.produitsFiltres = resultats;
+            },
+            error: () => { this.rechercheEnCours = false; }
+        });
+        this.charger();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    onRecherche(): void {
+        this.searchSubject.next(this.recherche);
+    }
 
     charger(): void {
         this.chargement = true;
@@ -336,13 +379,7 @@ export class AdminProduitsComponent implements OnInit {
     }
 
     filtrer(): void {
-        const q = this.recherche.trim().toLowerCase();
-        this.produitsFiltres = q
-            ? this.produits.filter(p =>
-                p.nom?.toLowerCase().includes(q) ||
-                p.equipe?.toLowerCase().includes(q) ||
-                p.marque?.toLowerCase().includes(q))
-            : [...this.produits];
+        this.produitsFiltres = [...this.produits];
     }
 
     voirArchives(): void {

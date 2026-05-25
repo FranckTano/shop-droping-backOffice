@@ -46,6 +46,10 @@ export class AdminProduitService {
         return this.http.get<ProduitAdmin[]>(this.BASE);
     }
 
+    rechercher(terme: string): Observable<ProduitAdmin[]> {
+        return this.http.get<ProduitAdmin[]>(`${this.BASE}/rechercher`, { params: { q: terme } });
+    }
+
     listerArchives(): Observable<ProduitAdmin[]> {
         return this.http.get<ProduitAdmin[]>(`${this.BASE}/archives`);
     }

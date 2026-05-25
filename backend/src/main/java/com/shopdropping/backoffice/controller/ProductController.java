@@ -34,6 +34,11 @@ public class ProductController {
         return productService.findArchives();
     }
 
+    @GetMapping("/rechercher")
+    public List<ProduitDto> rechercher(@RequestParam(defaultValue = "") String q) {
+        return productService.rechercher(q);
+    }
+
     @GetMapping("/{id}")
     public ProduitDto findById(@PathVariable Long id) {
         return productService.findById(id);
