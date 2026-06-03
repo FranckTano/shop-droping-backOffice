@@ -59,7 +59,7 @@ import { environment } from '@environments/environment';
             <div class="prod-grid" *ngIf="!chargement">
                 <div *ngFor="let p of produitsFiltres" class="prod-card">
                     <div class="prod-img-wrap">
-                        <img [src]="resolveUrl(p.imagePrincipale)" [alt]="p.nom" (error)="onImgError($event)" />
+                        <img [src]="resolveUrl(p.imagePrincipale)" [alt]="p.nom" loading="lazy" (error)="onImgError($event)" />
                         <div class="prod-badges">
                             <span class="badge-actif" [class.inactif]="!p.actif">
                                 {{ p.actif ? 'Actif' : 'Archivé' }}
@@ -109,7 +109,7 @@ import { environment } from '@environments/environment';
                 <div class="prod-grid">
                     <div *ngFor="let p of produitsArchives" class="prod-card archived">
                         <div class="prod-img-wrap">
-                            <img [src]="resolveUrl(p.imagePrincipale)" [alt]="p.nom" (error)="onImgError($event)" />
+                            <img [src]="resolveUrl(p.imagePrincipale)" [alt]="p.nom" loading="lazy" (error)="onImgError($event)" />
                         </div>
                         <div class="prod-info">
                             <h3>{{ p.nom }}</h3>
