@@ -17,6 +17,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../../../services/admin-produit.service';
+import { environment } from '@environments/environment';
 
 @Component({
     selector: 'app-admin-produits',
@@ -510,7 +511,14 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
     resolveUrl(url: string): string {
         if (!url) return '/images/app/login.png';
         if (url.startsWith('http')) return url;
-        return '/' + url.replace(/^\/+/, '');
+        const clean = url.replace(/^\/+/, '');
+        if (clean.startsWith('images/')) {
+            return `${environment.frontOfficeUrl}/${clean}`;
+        }
+        if (clean.startsWith('uploads/')) {
+            return `${environment.apiUrl.replace('/api', '')}/${clean}`;
+        }
+        return '/' + clean;
     }
 
     onImgError(event: Event): void {

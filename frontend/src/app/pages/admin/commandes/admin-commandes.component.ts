@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 import { AdminCommandeService, Commande, StatutCommande } from '../../../../services/admin-commande.service';
+import { environment } from '@environments/environment';
 
 @Component({
     selector: 'app-admin-commandes',
@@ -354,10 +355,14 @@ export class AdminCommandesComponent implements OnInit {
     resolveImageUrl(url: string | null): string {
         if (!url) return '/images/app/login.png';
         if (url.startsWith('http')) return url;
-        // URL relative — le proxy Angular route :
-        //   /images/**  → frontOffice :8080 /assets/images/**  (images catalogue)
-        //   /uploads/** → backOffice  :8081 /uploads/**        (images uploadées admin)
-        return '/' + url.replace(/^\/+/, '');
+        const clean = url.replace(/^\/+/, '');
+        if (clean.startsWith('images/')) {
+            return `${environment.frontOfficeUrl}/${clean}`;
+        }
+        if (clean.startsWith('uploads/')) {
+            return `${environment.apiUrl.replace('/api', '')}/${clean}`;
+        }
+        return '/' + clean;
     }
 
     onImgError(event: Event): void {
