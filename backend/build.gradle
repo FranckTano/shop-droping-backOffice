@@ -23,7 +23,6 @@ buildscript {
 
 plugins {
 	id 'java'
-	id 'war'
 	id 'jacoco'
 	id 'org.sonarqube' version "5.0.0.4638"
 	id 'org.springframework.boot' version '3.2.3'
@@ -201,6 +200,6 @@ sonar {
 	}
 }
 
-bootWar {
-	archiveFileName = 'radee-trading.war'
+bootJar {
+	archiveFileName = 'app.jar'
 }
