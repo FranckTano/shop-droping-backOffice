@@ -8,6 +8,7 @@ import Material from '@primeng/themes/material';
 import {definePreset} from '@primeng/themes';
 import {JWT_OPTIONS, JwtHelperService, JwtInterceptor} from "@auth0/angular-jwt";
 import {apiInterceptor} from "./interceptors/api.interceptor";
+import {wakeUpInterceptor} from "./interceptors/wake-up.interceptor";
 import {HashLocationStrategy, LocationStrategy} from "@angular/common";
 
 const MyPreset = definePreset(Material, {
@@ -44,7 +45,7 @@ export const appConfig: ApplicationConfig = {
 		),
 		JwtHelperService,
 		httpInterceptorsProviders,
-		provideHttpClient(withFetch(), withInterceptors([apiInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([wakeUpInterceptor, apiInterceptor])),
 		provideAnimationsAsync(),
 		providePrimeNG({
 			ripple: true,

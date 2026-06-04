@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -187,7 +188,7 @@ import { environment } from '@environments/environment';
                 <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
                         (click)="whatsappVisible = false"></button>
                 <!-- Lien <a> natif : jamais bloqué sur mobile ni desktop -->
-                <a [href]="whatsappUrl"
+                <a [href]="whatsappUrlSafe"
                    target="_blank"
                    rel="noopener noreferrer"
                    class="wa-send-btn"
@@ -275,10 +276,13 @@ export class AdminCommandesComponent implements OnInit {
     whatsappCommande: Commande | null = null;
     whatsappMessage = '';
 
-    get whatsappUrl(): string {
-        if (!this.whatsappCommande) return '#';
-        const tel = (this.whatsappCommande.clientTelephone ?? '').replace(/[\s\-().+]/g, '');
-        return `https://wa.me/${tel}?text=${encodeURIComponent(this.whatsappMessage)}`;
+    get whatsappUrlSafe(): SafeUrl {
+        if (!this.whatsappCommande) {
+            return this.sanitizer.bypassSecurityTrustUrl('#');
+        }
+        const tel = (this.whatsappCommande.clientTelephone ?? '').replace(/[\s\-().+\s]/g, '');
+        const url = `https://wa.me/${tel}?text=${encodeURIComponent(this.whatsappMessage)}`;
+        return this.sanitizer.bypassSecurityTrustUrl(url);
     }
 
     statutsFiltre = [
@@ -305,7 +309,8 @@ export class AdminCommandesComponent implements OnInit {
     constructor(
         private commandeService: AdminCommandeService,
         private messageService: MessageService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private sanitizer: DomSanitizer
     ) {}
 
     ngOnInit(): void { this.charger(); }
