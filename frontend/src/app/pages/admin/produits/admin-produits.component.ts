@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DividerModule } from 'primeng/divider';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../../../services/admin-produit.service';
 import { environment } from '@environments/environment';
@@ -24,7 +25,8 @@ import { environment } from '@environments/environment';
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule,
               TagModule, InputTextModule, TextareaModule, InputNumberModule, CheckboxModule,
-              DialogModule, ToastModule, TooltipModule, FileUploadModule, DividerModule],
+              DialogModule, ToastModule, TooltipModule, FileUploadModule, DividerModule,
+              PaginatorModule],
     providers: [MessageService],
     template: `
         <p-toast></p-toast>
@@ -34,7 +36,7 @@ import { environment } from '@environments/environment';
                 <div>
                     <p class="kicker">CATALOGUE</p>
                     <h1>Gestion des produits</h1>
-                    <p>{{ produits.length }} produit(s) actif(s)</p>
+                    <p>{{ produitsFiltres.length }} produit(s) · page {{ page + 1 }}/{{ totalPages }}</p>
                 </div>
                 <div class="header-actions">
                     <button pButton icon="pi pi-archive" label="Archives" class="p-button-outlined p-button-secondary"
@@ -55,9 +57,19 @@ import { environment } from '@environments/environment';
                 </button>
             </div>
 
+            <!-- Sélecteur par page -->
+            <div class="page-size-row" *ngIf="!chargement && produitsFiltres.length > 0">
+                <span class="page-size-label">Afficher</span>
+                <select class="page-size-select" [(ngModel)]="rowsPerPage" (ngModelChange)="onRowsChange()">
+                    <option *ngFor="let opt of rowsOptions" [ngValue]="opt">{{ opt }}</option>
+                </select>
+                <span class="page-size-label">par page</span>
+                <span class="page-count-info">— {{ debutIndex + 1 }}–{{ finIndex }} sur {{ produitsFiltres.length }}</span>
+            </div>
+
             <!-- Grid produits -->
             <div class="prod-grid" *ngIf="!chargement">
-                <div *ngFor="let p of produitsFiltres" class="prod-card">
+                <div *ngFor="let p of produitsPagines" class="prod-card">
                     <div class="prod-img-wrap">
                         <img [src]="resolveUrl(p.imagePrincipale)" [alt]="p.nom" loading="lazy" (error)="onImgError($event)" />
                         <div class="prod-badges">
@@ -88,6 +100,17 @@ import { environment } from '@environments/environment';
                     <i class="pi pi-box"></i>
                     <p>Aucun produit trouvé.</p>
                 </div>
+            </div>
+
+            <!-- Paginator -->
+            <div class="paginator-wrap" *ngIf="!chargement && produitsFiltres.length > rowsPerPage">
+                <p-paginator
+                    [rows]="rowsPerPage"
+                    [totalRecords]="produitsFiltres.length"
+                    [first]="page * rowsPerPage"
+                    (onPageChange)="onPageChange($event)"
+                    styleClass="prod-paginator">
+                </p-paginator>
             </div>
 
             <div *ngIf="chargement" class="prod-grid">
@@ -281,6 +304,31 @@ import { environment } from '@environments/environment';
         .image-preview { width: 100px; height: 100px; object-fit: cover; border-radius: .6rem; border: 1px solid rgba(15,23,42,.1); }
         .upload-btn-wrap { display: flex; align-items: center; gap: .5rem; }
 
+        /* Sélecteur par page */
+        .page-size-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .9rem; flex-wrap: wrap; }
+        .page-size-label { font-size: .82rem; color: #64748b; }
+        .page-size-select { padding: .3rem .65rem; border: 1.5px solid rgba(15,23,42,.12); border-radius: .5rem; font-size: .82rem; font-family: inherit; color: #0f172a; background: #fff; cursor: pointer; outline: none; transition: border-color .2s; }
+        .page-size-select:focus { border-color: #6366f1; }
+        .page-count-info { font-size: .8rem; color: #94a3b8; margin-left: .2rem; }
+
+        /* Paginator */
+        .paginator-wrap { margin-top: 1.5rem; display: flex; justify-content: center; }
+        ::ng-deep .prod-paginator .p-paginator { background: transparent !important; border: none !important; gap: .3rem !important; }
+        ::ng-deep .prod-paginator .p-paginator-page,
+        ::ng-deep .prod-paginator .p-paginator-prev,
+        ::ng-deep .prod-paginator .p-paginator-next,
+        ::ng-deep .prod-paginator .p-paginator-first,
+        ::ng-deep .prod-paginator .p-paginator-last {
+            background: #fff !important; border: 1.5px solid rgba(15,23,42,.1) !important;
+            color: #374151 !important; border-radius: .5rem !important;
+            min-width: 2.1rem !important; height: 2.1rem !important;
+            font-family: 'Poppins','Segoe UI',sans-serif !important; font-size: .82rem !important;
+        }
+        ::ng-deep .prod-paginator .p-paginator-page:hover,
+        ::ng-deep .prod-paginator .p-paginator-prev:hover,
+        ::ng-deep .prod-paginator .p-paginator-next:hover { border-color: #6366f1 !important; color: #6366f1 !important; }
+        ::ng-deep .prod-paginator .p-paginator-page.p-highlight { background: #6366f1 !important; border-color: #6366f1 !important; color: #fff !important; }
+
         @media (max-width: 640px) {
             .prod-shell { padding: 1rem; }
             .prod-header h1 { font-size: 1.3rem; }
@@ -301,6 +349,11 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
     private searchSubject = new Subject<string>();
     private destroy$ = new Subject<void>();
     voirArchivesMode = false;
+
+    // Pagination
+    page = 0;
+    rowsPerPage = 12;
+    readonly rowsOptions = [8, 12, 24, 48];
 
     formulaireVisible = false;
     editMode = false;
@@ -352,6 +405,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
             next: (resultats) => {
                 this.rechercheEnCours = false;
                 this.produitsFiltres = resultats;
+                this.page = 0;
             },
             error: () => { this.rechercheEnCours = false; }
         });
@@ -381,6 +435,22 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
 
     filtrer(): void {
         this.produitsFiltres = [...this.produits];
+        this.page = 0;
+    }
+
+    // ── Pagination ──────────────────────────────────
+    get debutIndex(): number { return this.page * this.rowsPerPage; }
+    get finIndex(): number { return Math.min(this.debutIndex + this.rowsPerPage, this.produitsFiltres.length); }
+    get totalPages(): number { return Math.max(1, Math.ceil(this.produitsFiltres.length / this.rowsPerPage)); }
+    get produitsPagines(): ProduitAdmin[] {
+        return this.produitsFiltres.slice(this.debutIndex, this.finIndex);
+    }
+    onPageChange(event: PaginatorState): void {
+        this.page = event.page ?? 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    onRowsChange(): void {
+        this.page = 0;
     }
 
     voirArchives(): void {

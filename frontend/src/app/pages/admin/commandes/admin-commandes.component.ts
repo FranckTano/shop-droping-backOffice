@@ -314,10 +314,18 @@ export class AdminCommandesComponent implements OnInit {
     }
 
     ouvrirWhatsApp(cmd: Commande): void {
-        const tel = (cmd.clientTelephone ?? '').replace(/[\s\-().+]/g, '');
+        const tel = (cmd.clientTelephone ?? '').replace(/[\s\-().+\s]/g, '');
         if (!tel) return;
         const msg = encodeURIComponent(`Bonjour ${cmd.clientNom}, concernant votre commande ${cmd.numero}...`);
-        window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
+        const url = `https://wa.me/${tel}?text=${msg}`;
+        // Méthode anchor : jamais bloquée par les popup blockers desktop
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 
     statutSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
