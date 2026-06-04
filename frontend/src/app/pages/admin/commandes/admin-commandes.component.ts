@@ -314,14 +314,8 @@ export class AdminCommandesComponent implements OnInit {
     }
 
     ouvrirWhatsApp(cmd: Commande): void {
-        let tel = (cmd.clientTelephone ?? '').replace(/[\s\-().]/g, '');
-        // Ajouter indicatif +225 (Côte d'Ivoire) si le numéro commence par 0 ou par 07/05/01
-        if (tel.startsWith('0') && tel.length <= 10) {
-            tel = '225' + tel.substring(1);
-        } else if (!tel.startsWith('+') && !tel.startsWith('225') && tel.length <= 10) {
-            tel = '225' + tel;
-        }
-        tel = tel.replace(/^\+/, '');
+        const tel = (cmd.clientTelephone ?? '').replace(/[\s\-().+]/g, '');
+        if (!tel) return;
         const msg = encodeURIComponent(`Bonjour ${cmd.clientNom}, concernant votre commande ${cmd.numero}...`);
         window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
     }

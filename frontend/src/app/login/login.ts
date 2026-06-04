@@ -34,6 +34,7 @@ export class Login implements OnInit {
 		password: new FormControl('', CustomValidators.notBlank),
 	});
 	messageErreur: ApplicationErreur;
+	loading = false;
 
 	constructor(private readonly authService: AuthService,
 				private readonly navigationService: NavigationService) {
@@ -47,6 +48,9 @@ export class Login implements OnInit {
 	}
 
 	authentifier() {
+		if (this.formAuthentification.invalid || this.loading) return;
+		this.loading = true;
+		this.messageErreur = null;
 		this.authService.authentifier(new LoginPassword(this.formAuthentification.value)).subscribe({
 			next: (data) => {
 				AuthService.updateAccessToken(data.token);
@@ -54,7 +58,8 @@ export class Login implements OnInit {
 				this.navigationService.goToHome();
 			},
 			error: (err) => {
-				this.messageErreur = err.error
+				this.messageErreur = err.error;
+				this.loading = false;
 			}
 		})
 	}
