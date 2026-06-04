@@ -49,6 +49,9 @@ repositories {
 }
 
 dependencies {
+	// Cloudinary — stockage images cloud
+	implementation 'com.cloudinary:cloudinary-http44:1.39.0'
+
 	// Core Spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
