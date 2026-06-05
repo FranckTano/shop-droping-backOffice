@@ -14,6 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 import { AdminCommandeService, Commande, StatutCommande } from '../../../../services/admin-commande.service';
+import { AdminUtilisateurService } from '../../../../services/admin-utilisateur.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -183,6 +184,9 @@ import { environment } from '@environments/environment';
                     placeholder="Saisissez votre message...">
                 </textarea>
                 <small class="wa-hint">Ce message sera pré-rempli dans WhatsApp. Vous pourrez encore le modifier avant d'envoyer.</small>
+                <small class="wa-admin-actif" *ngIf="numeroAdminActif">
+                    📲 {{ numeroAdminActifAffiche }}
+                </small>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
@@ -245,6 +249,7 @@ import { environment } from '@environments/environment';
         .wa-textarea { width: 100%; padding: .7rem .9rem; border: 1.5px solid #d1d5db; border-radius: .6rem; font-family: 'Poppins','Segoe UI',sans-serif; font-size: .88rem; color: #111827; resize: vertical; outline: none; transition: border-color .2s; background: #fff; }
         .wa-textarea:focus { border-color: #25D366; }
         .wa-hint { font-size: .75rem; color: #9ca3af; }
+        .wa-admin-actif { font-size: .75rem; color: #2563eb; background: #eff6ff; padding: .25rem .6rem; border-radius: .4rem; display: block; margin-top: .2rem; }
         .wa-send-btn {
             display: inline-flex; align-items: center; gap: .45rem;
             padding: .6rem 1.3rem; background: #25D366; color: #fff;
@@ -274,12 +279,16 @@ export class AdminCommandesComponent implements OnInit {
     whatsappMessage = '';
 
     get whatsappUrlSafe(): SafeUrl {
-        if (!this.whatsappCommande) {
-            return this.sanitizer.bypassSecurityTrustUrl('#');
-        }
-        const tel = (this.whatsappCommande.clientTelephone ?? '').replace(/[\s\-().+\s]/g, '');
+        if (!this.whatsappCommande) return this.sanitizer.bypassSecurityTrustUrl('#');
+        const tel = (this.whatsappCommande.clientTelephone ?? '').replace(/[\s\-().+]/g, '');
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(this.whatsappMessage)}`;
         return this.sanitizer.bypassSecurityTrustUrl(url);
+    }
+
+    get numeroAdminActifAffiche(): string {
+        return this.numeroAdminActif
+            ? `Réponses reçues sur : ${this.numeroAdminActif}`
+            : 'Aucun admin actif configuré';
     }
 
     statutsFiltre = [
@@ -303,14 +312,24 @@ export class AdminCommandesComponent implements OnInit {
         { label: '⏸️ Standby',          value: 'STANDBY' }
     ];
 
+    // Téléphone de l'admin actif (pour le message WhatsApp du client)
+    numeroAdminActif = '';
+
     constructor(
         private commandeService: AdminCommandeService,
         private messageService: MessageService,
         private route: ActivatedRoute,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private utilisateurService: AdminUtilisateurService
     ) {}
 
-    ngOnInit(): void { this.charger(); }
+    ngOnInit(): void {
+        this.charger();
+        this.utilisateurService.getAdminActif().subscribe({
+            next: (info) => { this.numeroAdminActif = info.telephone ?? ''; },
+            error: () => {}
+        });
+    }
 
     charger(): void {
         this.chargement = true;

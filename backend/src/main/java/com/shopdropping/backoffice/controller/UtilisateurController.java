@@ -45,9 +45,16 @@ public class UtilisateurController {
         return utilisateurService.changerStatut(id, body.get("statut"));
     }
 
+    @PatchMapping("/{id}/definir-admin-actif")
+    public UtilisateurDto definirAdminActif(@PathVariable Long id) {
+        return utilisateurService.definirAdminActif(id);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
         utilisateurService.supprimer(id);
         return ResponseEntity.noContent().build();
     }
 }
+
+

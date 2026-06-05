@@ -12,6 +12,8 @@ export interface Utilisateur {
     username: string;
     role: RoleUtilisateur;
     statut: StatutUtilisateur;
+    telephone: string | null;
+    recevoirCommandes: boolean;
 }
 
 export interface CreateUtilisateurRequest {
@@ -20,7 +22,23 @@ export interface CreateUtilisateurRequest {
     username: string;
     password: string;
     role: RoleUtilisateur;
-    statut: StatutUtilisateur;
+    telephone?: string;
+}
+
+export interface UpdateUtilisateurRequest {
+    nom?: string;
+    prenoms?: string;
+    username?: string;
+    password?: string;
+    role?: RoleUtilisateur;
+    statut?: StatutUtilisateur;
+    telephone?: string;
+}
+
+export interface AdminActif {
+    telephone: string;
+    nom: string;
+    configure: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,19 +51,27 @@ export class AdminUtilisateurService {
         return this.http.get<Utilisateur[]>(this.BASE);
     }
 
-    creer(req: CreateUtilisateurRequest): Observable<void> {
-        return this.http.post<void>(this.BASE, req);
+    creer(req: CreateUtilisateurRequest): Observable<Utilisateur> {
+        return this.http.post<Utilisateur>(this.BASE, req);
     }
 
-    mettreAJour(id: number, req: Partial<CreateUtilisateurRequest>): Observable<void> {
-        return this.http.put<void>(`${this.BASE}/${id}`, req);
+    mettreAJour(id: number, req: UpdateUtilisateurRequest): Observable<Utilisateur> {
+        return this.http.put<Utilisateur>(`${this.BASE}/${id}`, req);
     }
 
-    changerStatut(id: number, statut: StatutUtilisateur): Observable<void> {
-        return this.http.patch<void>(`${this.BASE}/${id}/statut`, { statut });
+    changerStatut(id: number, statut: StatutUtilisateur): Observable<Utilisateur> {
+        return this.http.patch<Utilisateur>(`${this.BASE}/${id}/statut`, { statut });
+    }
+
+    definirAdminActif(id: number): Observable<Utilisateur> {
+        return this.http.patch<Utilisateur>(`${this.BASE}/${id}/definir-admin-actif`, {});
     }
 
     supprimer(id: number): Observable<void> {
         return this.http.delete<void>(`${this.BASE}/${id}`);
+    }
+
+    getAdminActif(): Observable<AdminActif> {
+        return this.http.get<AdminActif>('api/admin/admin-actif');
     }
 }

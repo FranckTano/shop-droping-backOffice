@@ -7,5 +7,6 @@ public record CreateUtilisateurRequest(
         @NotBlank String password,
         @NotBlank String nom,
         @NotBlank String prenoms,
-        @NotBlank String role
+        @NotBlank String role,
+        String telephone
 ) {}
