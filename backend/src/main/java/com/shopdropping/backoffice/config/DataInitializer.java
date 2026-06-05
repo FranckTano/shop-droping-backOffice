@@ -26,22 +26,59 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         initialiserSuperAdmin();
+        initialiserAdmins();
         initialiserCategories();
     }
 
     private void initialiserSuperAdmin() {
-        boolean superAdminExiste = userRepository.existsByRole("SUPER_ADMIN");
-        if (!superAdminExiste) {
+        if (!userRepository.existsByUsername("franck")) {
+            // Supprimer l'ancien compte superadmin par défaut si présent
+            if (userRepository.existsByUsername("superadmin")) {
+                userRepository.deleteByUsername("superadmin");
+            }
             User superAdmin = User.builder()
-                    .username("superadmin")
+                    .username("franck")
                     .password(passwordEncoder.encode("Admin@2026!"))
-                    .nom("Administrateur")
-                    .prenoms("Super")
+                    .nom("TANO")
+                    .prenoms("Franck")
                     .role("SUPER_ADMIN")
                     .statut("ACTIF")
+                    .telephone("+255 0799136306")
+                    .recevoirCommandes(false)
                     .build();
             userRepository.save(superAdmin);
-            log.info("SUPER_ADMIN créé: superadmin / Admin@2026!");
+            log.info("SUPER_ADMIN créé: franck / Admin@2026!");
+        }
+    }
+
+    private void initialiserAdmins() {
+        if (!userRepository.existsByUsername("momo")) {
+            User momo = User.builder()
+                    .username("momo")
+                    .password(passwordEncoder.encode("Admin@2026!"))
+                    .nom("DICKO")
+                    .prenoms("Hamed")
+                    .role("ADMIN")
+                    .statut("ACTIF")
+                    .telephone("+255 0749516657")
+                    .recevoirCommandes(false)
+                    .build();
+            userRepository.save(momo);
+            log.info("ADMIN créé: momo / Admin@2026!");
+        }
+        if (!userRepository.existsByUsername("moussa")) {
+            User moussa = User.builder()
+                    .username("moussa")
+                    .password(passwordEncoder.encode("Admin@2026!"))
+                    .nom("DICKO")
+                    .prenoms("Moussa")
+                    .role("ADMIN")
+                    .statut("ACTIF")
+                    .telephone("+255 0789261994")
+                    .recevoirCommandes(false)
+                    .build();
+            userRepository.save(moussa);
+            log.info("ADMIN créé: moussa / Admin@2026!");
         }
     }
 
