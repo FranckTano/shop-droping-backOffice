@@ -43,7 +43,7 @@ public class DataInitializer implements CommandLineRunner {
                     .prenoms("Franck")
                     .role("SUPER_ADMIN")
                     .statut("ACTIF")
-                    .telephone("+255 0799136306")
+                    .telephone("+2250799136306")
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(superAdmin);
@@ -60,7 +60,7 @@ public class DataInitializer implements CommandLineRunner {
                     .prenoms("Hamed")
                     .role("ADMIN")
                     .statut("ACTIF")
-                    .telephone("+255 0749516657")
+                    .telephone("+2250749516657")
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(momo);
@@ -74,7 +74,7 @@ public class DataInitializer implements CommandLineRunner {
                     .prenoms("Moussa")
                     .role("ADMIN")
                     .statut("ACTIF")
-                    .telephone("+255 0789261994")
+                    .telephone("+2250789261994")
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(moussa);
