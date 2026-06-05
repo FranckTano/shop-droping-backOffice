@@ -49,8 +49,7 @@ repositories {
 }
 
 dependencies {
-	// Cloudinary — stockage images cloud
-	implementation 'com.cloudinary:cloudinary-http44:1.39.0'
+	// Cloudinary — upload via REST API (pas de SDK, zéro conflit de dépendance)
 
 	// Core Spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
