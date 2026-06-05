@@ -7,6 +7,7 @@ import com.shopdropping.backoffice.entity.User;
 import com.shopdropping.backoffice.exception.NotFoundException;
 import com.shopdropping.backoffice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class UtilisateurService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     public List<UtilisateurDto> findAll() {
         return userRepository.findAll().stream().map(this::toDto).toList();
@@ -115,7 +117,19 @@ public class UtilisateurService {
             }
         });
         cible.setRecevoirCommandes(true);
-        return toDto(userRepository.save(cible));
+        UtilisateurDto result = toDto(userRepository.save(cible));
+
+        // Synchroniser le numéro WhatsApp dans la table configuration du FrontOffice (DB partagée)
+        String telephone = cible.getTelephone();
+        int updated = jdbcTemplate.update(
+                "UPDATE configuration SET valeur = ? WHERE cle = 'whatsapp_numero'", telephone);
+        if (updated == 0) {
+            jdbcTemplate.update(
+                    "INSERT INTO configuration (cle, valeur, description) VALUES ('whatsapp_numero', ?, 'Numéro WhatsApp Business de la boutique')",
+                    telephone);
+        }
+
+        return result;
     }
 
     // Retourne le numéro de l'admin actif (pour le FrontOffice)
