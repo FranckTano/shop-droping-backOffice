@@ -230,7 +230,8 @@ import { environment } from '@environments/environment';
                                 styleClass="w-full"
                                 [showClear]="true"
                                 emptyMessage="Chargement..."
-                                [filter]="false">
+                                [filter]="false"
+                                appendTo="body">
                         <ng-template pTemplate="selectedItem" let-cat>
                             <span *ngIf="cat">{{ cat.nom | titlecase }}</span>
                         </ng-template>
