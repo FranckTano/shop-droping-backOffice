@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(superAdmin);
-            log.info("SUPER_ADMIN créé: franck / Admin@2026!");
+            log.info("SUPER_ADMIN créé: franck (mot de passe initialisé)");
         }
     }
 
@@ -64,7 +64,7 @@ public class DataInitializer implements CommandLineRunner {
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(momo);
-            log.info("ADMIN créé: momo / Admin@2026!");
+            log.info("ADMIN créé: momo (mot de passe initialisé)");
         }
         if (!userRepository.existsByUsername("moussa")) {
             User moussa = User.builder()
@@ -78,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
                     .recevoirCommandes(false)
                     .build();
             userRepository.save(moussa);
-            log.info("ADMIN créé: moussa / Admin@2026!");
+            log.info("ADMIN créé: moussa (mot de passe initialisé)");
         }
     }
 
