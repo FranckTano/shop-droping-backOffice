@@ -10,6 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -17,7 +18,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { DividerModule } from 'primeng/divider';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
-import { AdminProduitService, ProduitAdmin, ProduitCreateRequest } from '../../../../services/admin-produit.service';
+import { AdminProduitService, ProduitAdmin, ProduitCreateRequest, CategorieAdmin } from '../../../../services/admin-produit.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -25,8 +26,8 @@ import { environment } from '@environments/environment';
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule,
               TagModule, InputTextModule, TextareaModule, InputNumberModule, CheckboxModule,
-              DialogModule, ToastModule, TooltipModule, FileUploadModule, DividerModule,
-              PaginatorModule],
+              DropdownModule, DialogModule, ToastModule, TooltipModule, FileUploadModule,
+              DividerModule, PaginatorModule],
     providers: [MessageService],
     template: `
         <p-toast></p-toast>
@@ -219,6 +220,29 @@ import { environment } from '@environments/environment';
                            placeholder="Standard, Bleu, Rouge, Noir..." class="w-full" />
                 </div>
 
+                <div class="field-full">
+                    <label>Type de maillot *</label>
+                    <p-dropdown formControlName="categorieId"
+                                [options]="categories"
+                                optionLabel="nom"
+                                optionValue="id"
+                                placeholder="Choisir un type (Actuel, Vintage, Collection...)"
+                                styleClass="w-full"
+                                [showClear]="true"
+                                emptyMessage="Chargement..."
+                                [filter]="false">
+                        <ng-template pTemplate="selectedItem" let-cat>
+                            <span *ngIf="cat">{{ cat.nom | titlecase }}</span>
+                        </ng-template>
+                        <ng-template pTemplate="item" let-cat>
+                            <span>{{ cat.nom | titlecase }}</span>
+                        </ng-template>
+                    </p-dropdown>
+                    <small style="color:#64748b;font-size:.75rem">
+                        Détermine l'onglet d'affichage dans la boutique
+                    </small>
+                </div>
+
                 <div class="form-row">
                     <div class="field-check">
                         <p-checkbox formControlName="enPromotion" [binary]="true" inputId="chk-promo"></p-checkbox>
@@ -343,6 +367,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
     produits: ProduitAdmin[] = [];
     produitsFiltres: ProduitAdmin[] = [];
     produitsArchives: ProduitAdmin[] = [];
+    categories: CategorieAdmin[] = [];
     chargement = true;
     rechercheEnCours = false;
     recherche = '';
@@ -379,6 +404,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
             marque: [''],
             saison: [''],
             couleursDisponibles: ['Standard'],
+            categorieId: [null],
             enPromotion: [false],
             nouveau: [false],
             actif: [true]
@@ -390,6 +416,10 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.produitService.listerCategories().subscribe({
+            next: (data) => { this.categories = data.filter(c => c.actif); },
+            error: () => {}
+        });
         this.searchSubject.pipe(
             debounceTime(380),
             distinctUntilChanged(),
@@ -465,7 +495,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
         this.produitEnEdition = null;
         this.imagePreview = null;
         this.imageUploadee = null;
-        this.form.reset({ enPromotion: false, nouveau: false, actif: true });
+        this.form.reset({ enPromotion: false, nouveau: false, actif: true, categorieId: null, couleursDisponibles: 'Standard' });
         this.formulaireVisible = true;
     }
 
@@ -485,6 +515,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
             couleursDisponibles: Array.isArray(produit.couleursDisponibles)
                 ? produit.couleursDisponibles.join(', ')
                 : produit.couleursDisponibles ?? 'Standard',
+            categorieId: produit.categorieId ?? null,
             enPromotion: produit.enPromotion,
             nouveau: produit.nouveau,
             actif: produit.actif
@@ -523,6 +554,7 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
             description: v.description,
             prix: v.prix,
             prixPromo: v.prixPromo ?? undefined,
+            categorieId: v.categorieId ?? undefined,
             equipe: v.equipe,
             marque: v.marque,
             saison: v.saison,
