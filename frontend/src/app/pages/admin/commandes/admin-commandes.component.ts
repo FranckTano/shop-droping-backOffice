@@ -75,7 +75,12 @@ import { environment } from '@environments/environment';
                         <td>
                             <p-tag [value]="labelStatut(cmd.statut)" [severity]="statutSeverity(cmd.statut)"></p-tag>
                         </td>
-                        <td>{{ formatDate(cmd.createdAt) }}</td>
+                        <td>
+                            <div class="date-cell">
+                                <span>{{ formatDate(cmd.createdAt) }}</span>
+                                <span class="date-heure">{{ formatHeure(cmd.createdAt) }}</span>
+                            </div>
+                        </td>
                         <td>
                             <div class="action-btns">
                                 <button pButton icon="pi pi-eye" class="p-button-text p-button-sm"
@@ -84,6 +89,8 @@ import { environment } from '@environments/environment';
                                         pTooltip="Changer statut" (click)="ouvrirChangementStatut(cmd)"></button>
                                 <button pButton icon="pi pi-whatsapp" class="p-button-text p-button-sm p-button-success"
                                         pTooltip="Contacter via WhatsApp" (click)="ouvrirWhatsApp(cmd)"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                                        pTooltip="Supprimer la commande" (click)="demanderSuppression(cmd)"></button>
                             </div>
                         </td>
                     </tr>
@@ -166,6 +173,32 @@ import { environment } from '@environments/environment';
             </ng-template>
         </p-dialog>
 
+        <!-- Dialog Suppression -->
+        <p-dialog [(visible)]="suppressionVisible" header="Supprimer la commande"
+                  [modal]="true" [style]="{width:'min(95vw, 460px)'}"
+                  [draggable]="false" styleClass="del-dialog">
+            <div class="del-body" *ngIf="commandeAsupprimer">
+                <div class="del-icon-wrap">
+                    <i class="pi pi-exclamation-triangle del-icon"></i>
+                </div>
+                <p class="del-title">Êtes-vous sûr ?</p>
+                <p class="del-subtitle">
+                    Vous allez supprimer définitivement la commande
+                    <strong>{{ commandeAsupprimer.numero }}</strong>
+                    de <strong>{{ commandeAsupprimer.clientNom }}</strong>
+                    ({{ commandeAsupprimer.montantTotal | number:'1.0-0' }} FCFA).
+                </p>
+                <p class="del-warning">Cette action est irréversible.</p>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
+                        (click)="suppressionVisible = false"></button>
+                <button pButton label="Supprimer définitivement" icon="pi pi-trash"
+                        class="p-button-danger" [loading]="suppressionEnCours"
+                        (click)="confirmerSuppression()"></button>
+            </ng-template>
+        </p-dialog>
+
         <!-- Dialog WhatsApp -->
         <p-dialog [(visible)]="whatsappVisible" header="Message WhatsApp"
                   [modal]="true" [style]="{width:'min(96vw, 520px)'}"
@@ -238,6 +271,19 @@ import { environment } from '@environments/environment';
             .ligne-infos small { font-size: .75rem; }
         }
 
+        /* ── Date + heure ── */
+        .date-cell { display: flex; flex-direction: column; line-height: 1.3; }
+        .date-heure { font-size: .75rem; color: #94a3b8; font-weight: 500; }
+
+        /* ── Dialog Suppression ── */
+        ::ng-deep .del-dialog .p-dialog-header { background: #fff5f5 !important; border-bottom: 1px solid #fed7d7 !important; }
+        .del-body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1rem 0; gap: .6rem; }
+        .del-icon-wrap { width: 56px; height: 56px; border-radius: 50%; background: #fff5f5; border: 2px solid #feb2b2; display: flex; align-items: center; justify-content: center; margin-bottom: .4rem; }
+        .del-icon { font-size: 1.6rem; color: #e53e3e; }
+        .del-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1a202c; }
+        .del-subtitle { margin: 0; font-size: .9rem; color: #4a5568; line-height: 1.5; }
+        .del-warning { margin: 0; font-size: .82rem; color: #e53e3e; font-weight: 600; background: #fff5f5; padding: .35rem .8rem; border-radius: .4rem; }
+
         /* ── Dialog WhatsApp ── */
         ::ng-deep .wa-dialog .p-dialog { border-radius: 1rem !important; }
         ::ng-deep .wa-dialog .p-dialog-header { background: #f0fdf4 !important; border-bottom: 1px solid #dcfce7 !important; border-radius: 1rem 1rem 0 0 !important; }
@@ -277,6 +323,11 @@ export class AdminCommandesComponent implements OnInit {
     whatsappVisible = false;
     whatsappCommande: Commande | null = null;
     whatsappMessage = '';
+
+    // Suppression dialog
+    suppressionVisible = false;
+    commandeAsupprimer: Commande | null = null;
+    suppressionEnCours = false;
 
     get whatsappUrlSafe(): SafeUrl {
         if (!this.whatsappCommande) return this.sanitizer.bypassSecurityTrustUrl('#');
@@ -458,9 +509,48 @@ export class AdminCommandesComponent implements OnInit {
         return m[statut] ?? statut;
     }
 
+    demanderSuppression(cmd: Commande): void {
+        this.commandeAsupprimer = cmd;
+        this.suppressionVisible = true;
+    }
+
+    confirmerSuppression(): void {
+        if (!this.commandeAsupprimer) return;
+        this.suppressionEnCours = true;
+        this.commandeService.supprimer(this.commandeAsupprimer.id).subscribe({
+            next: () => {
+                this.commandes = this.commandes.filter(c => c.id !== this.commandeAsupprimer!.id);
+                this.appliquerFiltres();
+                this.suppressionVisible = false;
+                this.suppressionEnCours = false;
+                this.commandeAsupprimer = null;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Commande supprimée',
+                    detail: 'La commande a été supprimée définitivement.',
+                    life: 4000
+                });
+            },
+            error: () => {
+                this.suppressionEnCours = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Impossible de supprimer la commande.',
+                    life: 4000
+                });
+            }
+        });
+    }
+
     formatDate(date: string): string {
         if (!date) return '-';
         return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    formatHeure(date: string): string {
+        if (!date) return '';
+        return new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
 
     resolveImageUrl(url: string | null): string {
