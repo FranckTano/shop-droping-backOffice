@@ -314,9 +314,23 @@ export class AdminCommandesComponent implements OnInit {
     }
 
     ouvrirWhatsApp(cmd: Commande): void {
-        const tel = cmd.clientTelephone?.replace(/\s/g, '');
-        const msg = encodeURIComponent(`Bonjour ${cmd.clientNom}, concernant votre commande ${cmd.numero}...`);
-        window.open(`https://wa.me/${tel}?text=${msg}`, '_blank');
+        const clean = this.formaterNumeroCI(cmd.clientTelephone ?? '');
+        const frontUrl = environment.frontOfficeUrl ?? 'https://momo-store.shop';
+        let msg = `Bonjour *${cmd.clientNom}* 👋\n\n`;
+        msg += `Nous vous contactons concernant votre commande *${cmd.numero}*.\n\n`;
+        msg += `📲 Suivez votre commande en temps réel :\n`;
+        msg += `${frontUrl}/boutique/ma-commande?numero=${cmd.numero}\n\n`;
+        msg += `N'hésitez pas à nous répondre pour toute question. Merci ! 🙏`;
+        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    private formaterNumeroCI(tel: string): string {
+        if (!tel) return '';
+        const digits = tel.replace(/[^0-9]/g, '');
+        if (digits.startsWith('225')) return digits;
+        if (digits.startsWith('00225')) return digits.slice(2);
+        if (digits.startsWith('0')) return '225' + digits.slice(1);
+        return '225' + digits;
     }
 
     statutSeverity(statut: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {

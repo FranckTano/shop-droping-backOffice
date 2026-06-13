@@ -14,7 +14,12 @@ public interface CommandeRepository extends JpaRepository<Commande, Long> {
 
     long countByStatut(CommandeStatus statut);
 
-    @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut != com.shopdropping.backoffice.entity.CommandeStatus.ANNULEE")
+    @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut in (" +
+           "com.shopdropping.backoffice.entity.CommandeStatus.CONFIRMEE, " +
+           "com.shopdropping.backoffice.entity.CommandeStatus.EN_COURS, " +
+           "com.shopdropping.backoffice.entity.CommandeStatus.EXPEDIEE, " +
+           "com.shopdropping.backoffice.entity.CommandeStatus.VALIDEE, " +
+           "com.shopdropping.backoffice.entity.CommandeStatus.LIVREE)")
     BigDecimal sumChiffreAffaires();
 
     @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut = com.shopdropping.backoffice.entity.CommandeStatus.LIVREE")
@@ -24,7 +29,7 @@ public interface CommandeRepository extends JpaRepository<Commande, Long> {
             select to_char(date_trunc('month', c.created_at), 'YYYY-MM') as mois,
                    coalesce(sum(c.montant_total), 0) as total
             from commande c
-            where c.statut != 'ANNULEE'
+            where c.statut in ('CONFIRMEE', 'EN_COURS', 'EXPEDIEE', 'VALIDEE', 'LIVREE')
             group by date_trunc('month', c.created_at)
             order by date_trunc('month', c.created_at)
             """, nativeQuery = true)
