@@ -5,5 +5,6 @@ public record UpdateUtilisateurRequest(
         String nom,
         String prenoms,
         String role,
-        String statut
+        String statut,
+        String telephone
 ) {}

@@ -59,4 +59,8 @@ export class AdminCommandeService {
     getLienWhatsApp(id: number): Observable<{ lien: string; message: string }> {
         return this.http.get<{ lien: string; message: string }>(`${this.BASE}/whatsapp/${id}`);
     }
+
+    supprimer(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.BASE}/${id}`);
+    }
 }

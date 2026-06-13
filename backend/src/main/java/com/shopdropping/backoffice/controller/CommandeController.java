@@ -5,6 +5,7 @@ import com.shopdropping.backoffice.dto.UpdateCommandeStatutRequest;
 import com.shopdropping.backoffice.entity.CommandeStatus;
 import com.shopdropping.backoffice.service.CommandeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,5 +38,11 @@ public class CommandeController {
                                     @RequestBody Map<String, String> body) {
         CommandeStatus statut = CommandeStatus.valueOf(body.get("statut"));
         return commandeService.updateStatut(id, new UpdateCommandeStatutRequest(statut));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> supprimer(@PathVariable Long id) {
+        commandeService.supprimer(id);
+        return ResponseEntity.noContent().build();
     }
 }

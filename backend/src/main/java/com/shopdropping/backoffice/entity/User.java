@@ -37,6 +37,14 @@ public class User {
     @Builder.Default
     private String statut = "ACTIF";
 
+    @Column(length = 20)
+    private String telephone;
+
+    // L'admin dont le numéro reçoit les commandes des clients (un seul à la fois)
+    @Column(name = "recevoir_commandes", columnDefinition = "boolean default false not null")
+    @Builder.Default
+    private Boolean recevoirCommandes = false;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

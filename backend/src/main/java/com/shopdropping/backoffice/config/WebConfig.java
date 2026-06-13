@@ -3,29 +3,31 @@ package com.shopdropping.backoffice.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.product.image-path:${user.home}/shop-dropping/products/images}")
-    private String imageUploadPath;
+    @Value("${frontend.url.prod:https://shop-droping-back-office.vercel.app}")
+    private String frontendUrlProd;
+
+    private static final List<String> ALLOWED_ORIGINS = List.of(
+            "https://shop-droping-back-office.vercel.app",
+            "https://shop-droping-admin.vercel.app",
+            "http://localhost:4480",
+            "http://localhost:4400"
+    );
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
+                .allowedOrigins(ALLOWED_ORIGINS.toArray(new String[0]))
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
+                .allowedHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
+                .exposedHeaders("Authorization")
                 .allowCredentials(true)
                 .maxAge(3600);
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String imagePath = imageUploadPath.endsWith("/") ? imageUploadPath : imageUploadPath + "/";
-        registry.addResourceHandler("/uploads/produits/**")
-                .addResourceLocations("file:" + imagePath);
     }
 }

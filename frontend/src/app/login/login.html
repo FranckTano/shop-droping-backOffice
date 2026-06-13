@@ -26,11 +26,13 @@
 							<input pInputText type="password" formControlName="password" placeholder="Mot de passe"/>
 						</p-input-group>
 						<div class="mt-2">
-							<button [disabled]="formAuthentification.invalid" pButton pRipple class="w-full" label="Se connecter"></button>
+							<button [disabled]="formAuthentification.invalid || loading"
+									[loading]="loading"
+									pButton pRipple class="w-full" label="Se connecter"></button>
 						</div>
 						<div>
 							<button pButton pRipple class="w-full text-primary-500" text
-									label="Mot de passe oublié ?"></button>
+									label="Mot de passe oublié ?" (click)="ouvrirReset()"></button>
 						</div>
 					</form>
 				</div>
@@ -43,3 +45,46 @@
 	</div>
 </div>
 <app-configurator simple/>
+
+<!-- Dialog Mot de passe oublié -->
+<p-dialog [(visible)]="resetVisible" header="Réinitialiser le mot de passe"
+          [modal]="true" [style]="{width:'min(95vw, 420px)'}" [draggable]="false">
+
+    <!-- Étape 1 : saisie du login -->
+    <div *ngIf="!resetSuccess" class="flex flex-col gap-4">
+        <p style="font-size:.88rem;color:#475569;margin:0">
+            Saisissez votre <strong>nom d'utilisateur</strong>. Un mot de passe temporaire vous sera généré.
+        </p>
+        <div class="flex flex-col gap-2">
+            <label style="font-size:.85rem;font-weight:600">Nom d'utilisateur</label>
+            <input pInputText [(ngModel)]="resetUsername" placeholder="Votre login"
+                   (keyup.enter)="demanderReset()" class="w-full" />
+        </div>
+        <p-message *ngIf="resetErreur" severity="error" [text]="resetErreur" styleClass="w-full"></p-message>
+    </div>
+
+    <!-- Étape 2 : affichage du mot de passe temporaire -->
+    <div *ngIf="resetSuccess" class="flex flex-col gap-4">
+        <p-message severity="success" text="Mot de passe réinitialisé avec succès." styleClass="w-full"></p-message>
+        <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:.75rem;padding:1rem;text-align:center">
+            <p style="font-size:.82rem;color:#64748b;margin:0 0 .5rem">Mot de passe temporaire</p>
+            <strong style="font-size:1.4rem;letter-spacing:.12em;font-family:monospace;color:#0f172a">
+                {{ resetTempPassword }}
+            </strong>
+        </div>
+        <p style="font-size:.8rem;color:#dc2626;margin:0">
+            ⚠️ Notez ce mot de passe maintenant. Il ne sera plus affiché.
+        </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button *ngIf="!resetSuccess" pButton label="Annuler" icon="pi pi-times"
+                class="p-button-text" (click)="resetVisible = false"></button>
+        <button *ngIf="!resetSuccess" pButton label="Réinitialiser" icon="pi pi-key"
+                [loading]="resetLoading"
+                [disabled]="!resetUsername.trim() || resetLoading"
+                (click)="demanderReset()"></button>
+        <button *ngIf="resetSuccess" pButton label="Fermer" icon="pi pi-check"
+                (click)="resetVisible = false"></button>
+    </ng-template>
+</p-dialog>

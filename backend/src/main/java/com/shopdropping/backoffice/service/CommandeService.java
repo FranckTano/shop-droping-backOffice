@@ -42,6 +42,14 @@ public class CommandeService {
         return toDto(commandeRepository.save(commande));
     }
 
+    @Transactional
+    public void supprimer(Long id) {
+        if (!commandeRepository.existsById(id)) {
+            throw new NotFoundException("Commande introuvable: " + id);
+        }
+        commandeRepository.deleteById(id);
+    }
+
     private CommandeDto toDto(Commande c) {
         List<LigneCommandeDto> lignes = c.getLignes().stream().map(this::ligneToDto).toList();
         return new CommandeDto(

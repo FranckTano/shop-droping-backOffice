@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface CategorieAdmin {
+    id: number;
+    nom: string;
+    description: string | null;
+    actif: boolean;
+}
+
 export interface ProduitAdmin {
     id: number;
     nom: string;
@@ -72,6 +79,10 @@ export class AdminProduitService {
 
     restaurer(id: number): Observable<ProduitAdmin> {
         return this.http.patch<ProduitAdmin>(`${this.BASE}/${id}/restaurer`, {});
+    }
+
+    listerCategories(): Observable<CategorieAdmin[]> {
+        return this.http.get<CategorieAdmin[]>('api/admin/categories');
     }
 
     uploadImage(file: File): Observable<{ url: string; filename: string }> {

@@ -1,7 +1,7 @@
 package com.shopdropping.backoffice.controller;
 
 import com.shopdropping.backoffice.dto.ImageUploadResponseDto;
-import com.shopdropping.backoffice.service.FileStorageService;
+import com.shopdropping.backoffice.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +16,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class FileUploadController {
 
-    private final FileStorageService fileStorageService;
+    private final CloudinaryService cloudinaryService;
 
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageUploadResponseDto> uploadImage(
             @RequestParam("file") MultipartFile file) {
-
-        String imageUrl = fileStorageService.stocker(file);
-        if (imageUrl == null) {
+        try {
+            String imageUrl = cloudinaryService.upload(file);
+            String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+            return ResponseEntity.ok(new ImageUploadResponseDto(imageUrl, filename));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
-        String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-        return ResponseEntity.ok(new ImageUploadResponseDto(imageUrl, filename));
     }
 }

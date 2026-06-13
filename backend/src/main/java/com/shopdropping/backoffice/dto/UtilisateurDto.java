@@ -9,5 +9,7 @@ public record UtilisateurDto(
         String prenoms,
         String role,
         String statut,
+        String telephone,
+        Boolean recevoirCommandes,
         LocalDateTime createdAt
 ) {}

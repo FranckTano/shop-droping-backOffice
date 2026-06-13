@@ -1,24 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
 import { MessageService } from 'primeng/api';
 import { AdminCommandeService, Commande, StatutCommande } from '../../../../services/admin-commande.service';
+import { AdminUtilisateurService } from '../../../../services/admin-utilisateur.service';
 import { environment } from '@environments/environment';
 
 @Component({
     selector: 'app-admin-commandes',
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule, TagModule,
-              DropdownModule, InputTextModule, DialogModule, ToastModule, DividerModule],
+              DropdownModule, InputTextModule, TextareaModule, DialogModule, ToastModule, DividerModule],
     providers: [MessageService],
     template: `
         <p-toast></p-toast>
@@ -72,7 +75,12 @@ import { environment } from '@environments/environment';
                         <td>
                             <p-tag [value]="labelStatut(cmd.statut)" [severity]="statutSeverity(cmd.statut)"></p-tag>
                         </td>
-                        <td>{{ formatDate(cmd.createdAt) }}</td>
+                        <td>
+                            <div class="date-cell">
+                                <span>{{ formatDate(cmd.createdAt) }}</span>
+                                <span class="date-heure">{{ formatHeure(cmd.createdAt) }}</span>
+                            </div>
+                        </td>
                         <td>
                             <div class="action-btns">
                                 <button pButton icon="pi pi-eye" class="p-button-text p-button-sm"
@@ -81,6 +89,8 @@ import { environment } from '@environments/environment';
                                         pTooltip="Changer statut" (click)="ouvrirChangementStatut(cmd)"></button>
                                 <button pButton icon="pi pi-whatsapp" class="p-button-text p-button-sm p-button-success"
                                         pTooltip="Contacter via WhatsApp" (click)="ouvrirWhatsApp(cmd)"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                                        pTooltip="Supprimer la commande" (click)="demanderSuppression(cmd)"></button>
                             </div>
                         </td>
                     </tr>
@@ -162,6 +172,68 @@ import { environment } from '@environments/environment';
                         (click)="confirmerChangementStatut()"></button>
             </ng-template>
         </p-dialog>
+
+        <!-- Dialog Suppression -->
+        <p-dialog [(visible)]="suppressionVisible" header="Supprimer la commande"
+                  [modal]="true" [style]="{width:'min(95vw, 460px)'}"
+                  [draggable]="false" styleClass="del-dialog">
+            <div class="del-body" *ngIf="commandeAsupprimer">
+                <div class="del-icon-wrap">
+                    <i class="pi pi-exclamation-triangle del-icon"></i>
+                </div>
+                <p class="del-title">Êtes-vous sûr ?</p>
+                <p class="del-subtitle">
+                    Vous allez supprimer définitivement la commande
+                    <strong>{{ commandeAsupprimer.numero }}</strong>
+                    de <strong>{{ commandeAsupprimer.clientNom }}</strong>
+                    ({{ commandeAsupprimer.montantTotal | number:'1.0-0' }} FCFA).
+                </p>
+                <p class="del-warning">Cette action est irréversible.</p>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
+                        (click)="suppressionVisible = false"></button>
+                <button pButton label="Supprimer définitivement" icon="pi pi-trash"
+                        class="p-button-danger" [loading]="suppressionEnCours"
+                        (click)="confirmerSuppression()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Dialog WhatsApp -->
+        <p-dialog [(visible)]="whatsappVisible" header="Message WhatsApp"
+                  [modal]="true" [style]="{width:'min(96vw, 520px)'}"
+                  [draggable]="false" [resizable]="false"
+                  styleClass="wa-dialog">
+            <div class="wa-body">
+                <div class="wa-client-info" *ngIf="whatsappCommande">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .99h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.1a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                    <span><strong>{{ whatsappCommande.clientNom }}</strong> — {{ whatsappCommande.clientTelephone }}</span>
+                </div>
+                <label class="wa-label">Message à envoyer</label>
+                <textarea
+                    [(ngModel)]="whatsappMessage"
+                    rows="6"
+                    class="wa-textarea"
+                    placeholder="Saisissez votre message...">
+                </textarea>
+                <small class="wa-hint">Ce message sera pré-rempli dans WhatsApp. Vous pourrez encore le modifier avant d'envoyer.</small>
+                <small class="wa-admin-actif" *ngIf="numeroAdminActif">
+                    📲 {{ numeroAdminActifAffiche }}
+                </small>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton label="Annuler" icon="pi pi-times" class="p-button-text"
+                        (click)="whatsappVisible = false"></button>
+                <!-- Lien <a> natif : jamais bloqué sur mobile ni desktop -->
+                <!-- Bouton natif : window.open() dans un click handler est TOUJOURS autorisé -->
+                <button type="button" class="wa-send-btn" (click)="ouvrirWhatsAppNow()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Ouvrir WhatsApp
+                </button>
+            </ng-template>
+        </p-dialog>
     `,
     styles: [`
         .cmd-shell { padding: 1.5rem; font-family: 'Poppins', 'Segoe UI', sans-serif; }
@@ -198,6 +270,41 @@ import { environment } from '@environments/environment';
             .detail-grid { grid-template-columns: 1fr; }
             .ligne-infos small { font-size: .75rem; }
         }
+
+        /* ── Date + heure ── */
+        .date-cell { display: flex; flex-direction: column; line-height: 1.3; }
+        .date-heure { font-size: .75rem; color: #94a3b8; font-weight: 500; }
+
+        /* ── Dialog Suppression ── */
+        ::ng-deep .del-dialog .p-dialog-header { background: #fff5f5 !important; border-bottom: 1px solid #fed7d7 !important; }
+        .del-body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1rem 0; gap: .6rem; }
+        .del-icon-wrap { width: 56px; height: 56px; border-radius: 50%; background: #fff5f5; border: 2px solid #feb2b2; display: flex; align-items: center; justify-content: center; margin-bottom: .4rem; }
+        .del-icon { font-size: 1.6rem; color: #e53e3e; }
+        .del-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1a202c; }
+        .del-subtitle { margin: 0; font-size: .9rem; color: #4a5568; line-height: 1.5; }
+        .del-warning { margin: 0; font-size: .82rem; color: #e53e3e; font-weight: 600; background: #fff5f5; padding: .35rem .8rem; border-radius: .4rem; }
+
+        /* ── Dialog WhatsApp ── */
+        ::ng-deep .wa-dialog .p-dialog { border-radius: 1rem !important; }
+        ::ng-deep .wa-dialog .p-dialog-header { background: #f0fdf4 !important; border-bottom: 1px solid #dcfce7 !important; border-radius: 1rem 1rem 0 0 !important; }
+        ::ng-deep .wa-dialog .p-dialog-content { padding: 1.25rem 1.5rem !important; }
+        ::ng-deep .wa-dialog .p-dialog-footer { border-top: 1px solid #f1f5f9 !important; padding: .9rem 1.5rem !important; display: flex; justify-content: flex-end; gap: .6rem; }
+        .wa-body { display: flex; flex-direction: column; gap: .8rem; }
+        .wa-client-info { display: flex; align-items: center; gap: .5rem; padding: .55rem .9rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: .6rem; font-size: .85rem; color: #166534; }
+        .wa-label { font-size: .82rem; font-weight: 600; color: #374151; }
+        .wa-textarea { width: 100%; padding: .7rem .9rem; border: 1.5px solid #d1d5db; border-radius: .6rem; font-family: 'Poppins','Segoe UI',sans-serif; font-size: .88rem; color: #111827; resize: vertical; outline: none; transition: border-color .2s; background: #fff; }
+        .wa-textarea:focus { border-color: #25D366; }
+        .wa-hint { font-size: .75rem; color: #9ca3af; }
+        .wa-admin-actif { font-size: .75rem; color: #2563eb; background: #eff6ff; padding: .25rem .6rem; border-radius: .4rem; display: block; margin-top: .2rem; }
+        .wa-send-btn {
+            display: inline-flex; align-items: center; gap: .45rem;
+            padding: .6rem 1.3rem; background: #25D366; color: #fff;
+            border-radius: .5rem; font-size: .85rem; font-weight: 600;
+            text-decoration: none; font-family: 'Poppins','Segoe UI',sans-serif;
+            transition: background .2s, transform .15s;
+            cursor: pointer;
+        }
+        .wa-send-btn:hover { background: #1ebe5c; transform: translateY(-1px); }
     `]
 })
 export class AdminCommandesComponent implements OnInit {
@@ -211,6 +318,29 @@ export class AdminCommandesComponent implements OnInit {
     statutVisible = false;
     commandeSelectionnee: Commande | null = null;
     nouveauStatut: StatutCommande | null = null;
+
+    // WhatsApp dialog
+    whatsappVisible = false;
+    whatsappCommande: Commande | null = null;
+    whatsappMessage = '';
+
+    // Suppression dialog
+    suppressionVisible = false;
+    commandeAsupprimer: Commande | null = null;
+    suppressionEnCours = false;
+
+    get whatsappUrlSafe(): SafeUrl {
+        if (!this.whatsappCommande) return this.sanitizer.bypassSecurityTrustUrl('#');
+        const tel = (this.whatsappCommande.clientTelephone ?? '').replace(/[\s\-().+]/g, '');
+        const url = `https://wa.me/${tel}?text=${encodeURIComponent(this.whatsappMessage)}`;
+        return this.sanitizer.bypassSecurityTrustUrl(url);
+    }
+
+    get numeroAdminActifAffiche(): string {
+        return this.numeroAdminActif
+            ? `Réponses reçues sur : ${this.numeroAdminActif}`
+            : 'Aucun admin actif configuré';
+    }
 
     statutsFiltre = [
         { label: 'Toutes',     value: 'TOUS' },
@@ -233,13 +363,24 @@ export class AdminCommandesComponent implements OnInit {
         { label: '⏸️ Standby',          value: 'STANDBY' }
     ];
 
+    // Téléphone de l'admin actif (pour le message WhatsApp du client)
+    numeroAdminActif = '';
+
     constructor(
         private commandeService: AdminCommandeService,
         private messageService: MessageService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private sanitizer: DomSanitizer,
+        private utilisateurService: AdminUtilisateurService
     ) {}
 
-    ngOnInit(): void { this.charger(); }
+    ngOnInit(): void {
+        this.charger();
+        this.utilisateurService.getAdminActif().subscribe({
+            next: (info) => { this.numeroAdminActif = info.telephone ?? ''; },
+            error: () => {}
+        });
+    }
 
     charger(): void {
         this.chargement = true;
@@ -314,14 +455,29 @@ export class AdminCommandesComponent implements OnInit {
     }
 
     ouvrirWhatsApp(cmd: Commande): void {
-        const clean = this.formaterNumeroCI(cmd.clientTelephone ?? '');
+        this.whatsappCommande = cmd;
+        const prenom = cmd.clientNom?.split(' ')[0] ?? cmd.clientNom ?? '';
         const frontUrl = environment.frontOfficeUrl ?? 'https://momo-store.shop';
-        let msg = `Bonjour *${cmd.clientNom}* 👋\n\n`;
-        msg += `Nous vous contactons concernant votre commande *${cmd.numero}*.\n\n`;
-        msg += `📲 Suivez votre commande en temps réel :\n`;
-        msg += `${frontUrl}/boutique/ma-commande?numero=${cmd.numero}\n\n`;
-        msg += `N'hésitez pas à nous répondre pour toute question. Merci ! 🙏`;
-        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
+        this.whatsappMessage =
+            `${this.salutation()} *${prenom}* 👋\n\n` +
+            `Nous vous contactons concernant votre commande *${cmd.numero}*.\n\n` +
+            `📲 Suivez votre commande :\n` +
+            `${frontUrl}/boutique/ma-commande?numero=${cmd.numero}\n\n` +
+            `N'hésitez pas à nous répondre. Merci ! 🙏`;
+        this.whatsappVisible = true;
+    }
+
+    ouvrirWhatsAppNow(): void {
+        if (!this.whatsappCommande) return;
+        const tel = this.formaterNumeroCI(this.whatsappCommande.clientTelephone ?? '');
+        const url = `https://wa.me/${tel}?text=${encodeURIComponent(this.whatsappMessage)}`;
+        this.whatsappVisible = false;
+        window.open(url, '_blank');
+    }
+
+    private salutation(): string {
+        const h = new Date().getHours();
+        return (h >= 18 || h < 6) ? 'Bonsoir' : 'Bonjour';
     }
 
     private formaterNumeroCI(tel: string): string {
@@ -361,9 +517,48 @@ export class AdminCommandesComponent implements OnInit {
         return m[statut] ?? statut;
     }
 
+    demanderSuppression(cmd: Commande): void {
+        this.commandeAsupprimer = cmd;
+        this.suppressionVisible = true;
+    }
+
+    confirmerSuppression(): void {
+        if (!this.commandeAsupprimer) return;
+        this.suppressionEnCours = true;
+        this.commandeService.supprimer(this.commandeAsupprimer.id).subscribe({
+            next: () => {
+                this.commandes = this.commandes.filter(c => c.id !== this.commandeAsupprimer!.id);
+                this.appliquerFiltres();
+                this.suppressionVisible = false;
+                this.suppressionEnCours = false;
+                this.commandeAsupprimer = null;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Commande supprimée',
+                    detail: 'La commande a été supprimée définitivement.',
+                    life: 4000
+                });
+            },
+            error: () => {
+                this.suppressionEnCours = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erreur',
+                    detail: 'Impossible de supprimer la commande.',
+                    life: 4000
+                });
+            }
+        });
+    }
+
     formatDate(date: string): string {
         if (!date) return '-';
         return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    formatHeure(date: string): string {
+        if (!date) return '';
+        return new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
 
     resolveImageUrl(url: string | null): string {
