@@ -13,9 +13,10 @@
 
 	<div class="layout-topbar-actions-end">
 		<ul class="layout-topbar-items">
-			<li>
-				<a (click)="toggleConfigSidebar()" class="cursor-pointer" title="Thème">
-					<i class="pi pi-cog"></i>
+			<li class="dark-toggle-item">
+				<a (click)="toggleDarkMode()" class="cursor-pointer dark-toggle-btn"
+				   [title]="layoutService.isDarkTheme() ? 'Passer en mode clair' : 'Passer en mode sombre'">
+					<i [class]="layoutService.isDarkTheme() ? 'pi pi-sun' : 'pi pi-moon'"></i>
 				</a>
 			</li>
 		</ul>

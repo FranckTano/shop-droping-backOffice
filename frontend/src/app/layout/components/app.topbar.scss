@@ -22,7 +22,31 @@
 	.titre { font-size: 18px; }
 }
 
-/* Masquer les 3 boutons dans layout-topbar-actions-end */
+/* Masquer les boutons de démo dans layout-topbar-actions-end */
 .layout-topbar-actions-end .layout-topbar-items > li {
 	display: none !important;
+}
+
+/* Exception : bouton dark mode toujours visible */
+.layout-topbar-actions-end .layout-topbar-items > li.dark-toggle-item {
+	display: flex !important;
+	align-items: center;
+}
+
+.dark-toggle-btn {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 36px !important;
+	height: 36px !important;
+	border-radius: 50%;
+	transition: background 0.2s, color 0.2s, transform 0.3s;
+	font-size: 1.1rem;
+	/* Hérite la couleur du topbar theme actif (blanc en custom/dark) */
+	color: var(--topbar-item-text-color, #ffffff) !important;
+
+	&:hover {
+		background: var(--topbar-item-hover-bg, rgba(255,255,255,0.15)) !important;
+		transform: rotate(20deg);
+	}
 }

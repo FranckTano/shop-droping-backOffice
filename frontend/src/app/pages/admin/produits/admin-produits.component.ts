@@ -611,17 +611,33 @@ export class AdminProduitsComponent implements OnInit, OnDestroy {
         });
     }
 
-    resolveUrl(url: string): string {
-        if (!url) return '/images/app/login.png';
-        if (url.startsWith('http')) return url;
-        const clean = url.replace(/^\/+/, '');
-        if (clean.startsWith('images/')) {
-            return `${environment.frontOfficeUrl}/${clean}`;
-        }
+    resolveUrl(url: string | null | undefined): string {
+        const normalized = (url ?? '').trim();
+        if (!normalized) return '/images/app/login.png';
+
+        // URL absolue (Cloudinary, externe) — protocol-relative ou http(s)://
+        if (/^https?:\/\//i.test(normalized)) return normalized;
+        if (normalized.startsWith('//')) return `https:${normalized}`;
+
+        const clean = normalized.replace(/\\/g, '/').replace(/^\/+/, '');
+
+        // Upload local → chemin relatif : le proxy Angular route vers localhost:8081
+        // En prod, Cloudinary est configuré donc uploads/ n'existe jamais dans la DB
         if (clean.startsWith('uploads/')) {
-            return `${environment.apiUrl.replace('/api', '')}/${clean}`;
+            return environment.production
+                ? `${environment.apiUrl.replace('/api', '')}/${clean}`
+                : `/${clean}`;
         }
-        return '/' + clean;
+
+        // Assets images → en dev le proxy route /images → http://localhost:8080/assets/images
+        // En prod on utilise l'URL absolue du FrontOffice (momo-store.shop sert /images/**)
+        if (clean.startsWith('images/')) {
+            return environment.production
+                ? `${environment.frontOfficeUrl}/${clean}`
+                : `/${clean}`;
+        }
+
+        return `/${clean}`;
     }
 
     onImgError(event: Event): void {

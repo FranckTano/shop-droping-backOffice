@@ -139,4 +139,13 @@ export class AppTopbar {
     onTopbarMenuToggle() {
         this.layoutService.layoutState.update((val) => ({ ...val, topbarMenuActive: !val.topbarMenuActive }));
     }
+
+    toggleDarkMode() {
+        this.layoutService.layoutConfig.update(c => ({
+            ...c,
+            darkTheme:    !c.darkTheme,
+            topbarTheme:  !c.darkTheme ? 'dark'  : 'custom',
+            menuTheme:    !c.darkTheme ? 'dark'  : 'light'
+        }));
+    }
 }

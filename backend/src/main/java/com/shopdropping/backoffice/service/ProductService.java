@@ -3,8 +3,7 @@ package com.shopdropping.backoffice.service;
 import com.shopdropping.backoffice.dto.CreateProduitRequest;
 import com.shopdropping.backoffice.dto.ProduitDto;
 import com.shopdropping.backoffice.dto.UpdateProduitRequest;
-import com.shopdropping.backoffice.entity.Categorie;
-import com.shopdropping.backoffice.entity.Product;
+import com.shopdropping.backoffice.entity.*;
 import com.shopdropping.backoffice.exception.NotFoundException;
 import com.shopdropping.backoffice.repository.CategorieRepository;
 import com.shopdropping.backoffice.repository.ProductRepository;
@@ -20,6 +19,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategorieRepository categorieRepository;
+    private final AuditLogService auditLogService;
 
     public List<ProduitDto> findAll() {
         return productRepository.findAllWithCategorie().stream().map(this::toDto).toList();
@@ -61,7 +61,14 @@ public class ProductService {
                 .marque(request.marque())
                 .couleursDisponibles(request.couleursDisponibles())
                 .build();
-        return toDto(productRepository.save(product));
+        ProduitDto result = toDto(productRepository.save(product));
+
+        auditLogService.enregistrer(
+                TypeAction.CREATION, TypeEntite.PRODUIT,
+                result.id(), null,
+                "Produit créé : " + request.nom()
+        );
+        return result;
     }
 
     @Transactional
@@ -69,21 +76,27 @@ public class ProductService {
         Product product = productRepository.findByIdWithCategorie(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
 
-        if (request.nom() != null) product.setNom(request.nom());
-        if (request.description() != null) product.setDescription(request.description());
-        if (request.prix() != null) product.setPrix(request.prix());
-        if (request.prixPromo() != null) product.setPrixPromo(request.prixPromo());
-        if (request.categorieId() != null) product.setCategorie(resolveCategorie(request.categorieId()));
-        if (request.actif() != null) product.setActif(request.actif());
-        if (request.enPromotion() != null) product.setEnPromotion(request.enPromotion());
-        if (request.nouveau() != null) product.setNouveau(request.nouveau());
-        if (request.equipe() != null) product.setEquipe(request.equipe());
-        if (request.saison() != null) product.setSaison(request.saison());
-        if (request.marque() != null) product.setMarque(request.marque());
+        if (request.nom()               != null) product.setNom(request.nom());
+        if (request.description()       != null) product.setDescription(request.description());
+        if (request.prix()              != null) product.setPrix(request.prix());
+        if (request.prixPromo()         != null) product.setPrixPromo(request.prixPromo());
+        if (request.categorieId()       != null) product.setCategorie(resolveCategorie(request.categorieId()));
+        if (request.actif()             != null) product.setActif(request.actif());
+        if (request.enPromotion()       != null) product.setEnPromotion(request.enPromotion());
+        if (request.nouveau()           != null) product.setNouveau(request.nouveau());
+        if (request.equipe()            != null) product.setEquipe(request.equipe());
+        if (request.saison()            != null) product.setSaison(request.saison());
+        if (request.marque()            != null) product.setMarque(request.marque());
         if (request.couleursDisponibles() != null) product.setCouleursDisponibles(request.couleursDisponibles());
-        if (request.imagePrincipale() != null) product.setImagePrincipale(request.imagePrincipale());
+        if (request.imagePrincipale()   != null) product.setImagePrincipale(request.imagePrincipale());
 
-        return toDto(productRepository.save(product));
+        ProduitDto result = toDto(productRepository.save(product));
+        auditLogService.enregistrer(
+                TypeAction.MODIFICATION, TypeEntite.PRODUIT,
+                id, null,
+                "Produit modifié : " + product.getNom()
+        );
+        return result;
     }
 
     @Transactional
@@ -91,7 +104,10 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
         product.setActif(false);
-        return toDto(productRepository.save(product));
+        ProduitDto result = toDto(productRepository.save(product));
+        auditLogService.enregistrer(TypeAction.MODIFICATION, TypeEntite.PRODUIT, id, null,
+                "Produit archivé : " + product.getNom());
+        return result;
     }
 
     @Transactional
@@ -99,15 +115,20 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
         product.setActif(true);
-        return toDto(productRepository.save(product));
+        ProduitDto result = toDto(productRepository.save(product));
+        auditLogService.enregistrer(TypeAction.MODIFICATION, TypeEntite.PRODUIT, id, null,
+                "Produit restauré : " + product.getNom());
+        return result;
     }
 
     @Transactional
     public void supprimer(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new NotFoundException("Produit introuvable: " + id);
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
+        String nom = product.getNom();
         productRepository.deleteById(id);
+        auditLogService.enregistrer(TypeAction.SUPPRESSION, TypeEntite.PRODUIT, id, null,
+                "Produit supprimé : " + nom);
     }
 
     private Categorie resolveCategorie(Long categorieId) {
@@ -117,7 +138,7 @@ public class ProductService {
     }
 
     private ProduitDto toDto(Product p) {
-        Long catId = p.getCategorie() != null ? p.getCategorie().getId() : null;
+        Long   catId  = p.getCategorie() != null ? p.getCategorie().getId()  : null;
         String catNom = p.getCategorie() != null ? p.getCategorie().getNom() : null;
         return new ProduitDto(
                 p.getId(), p.getNom(), p.getDescription(),

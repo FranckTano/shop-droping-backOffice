@@ -25,3 +25,343 @@ body {
 .p-button {
 	border-radius: 0.7rem;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DARK MODE — Overrides globaux adaptatifs
+   Sélecteur .app-dark est posé sur <html> par LayoutService
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.app-dark {
+
+    // ── Body background ──────────────────────────────────────────────────────
+    body {
+        background:
+            radial-gradient(circle at 12% 10%, rgba(99,102,241,0.05), transparent 40%),
+            radial-gradient(circle at 88% 5%,  rgba(6,182,212,0.04),  transparent 35%),
+            var(--p-surface-950, #020617);
+        color: var(--p-text-color, #e2e8f0);
+    }
+
+    // ── Typographie générale ─────────────────────────────────────────────────
+    h1, h2, h3, h4, h5, h6 { color: var(--p-text-color, #f1f5f9); }
+
+    // ── Quick links (Dashboard) ───────────────────────────────────────────────
+    .ql-card {
+        color: var(--p-text-color, #e2e8f0) !important;
+        &:hover {
+            background: rgba(255,255,255,0.05) !important;
+            color: var(--p-primary-color, #818cf8) !important;
+            border-color: var(--p-primary-color, #818cf8) !important;
+        }
+    }
+
+    // ── Kicker (petits labels en majuscules) ──────────────────────────────────
+    .dash-kicker, .ana-kicker, .audit-kicker { color: #818cf8 !important; }
+
+    // ── KPI cards — icônes ───────────────────────────────────────────────────
+    .kpi-total    .kpi-icon { background: rgba(96,165,250,0.15)  !important; color: #60a5fa !important; }
+    .kpi-attente  .kpi-icon { background: rgba(251,191,36,0.15)  !important; color: #fbbf24 !important; }
+    .kpi-livrees  .kpi-icon { background: rgba(74,222,128,0.15)  !important; color: #4ade80 !important; }
+    .kpi-ca       .kpi-icon { background: rgba(52,211,153,0.15)  !important; color: #34d399 !important; }
+    .kpi-produits .kpi-icon { background: rgba(192,132,252,0.15) !important; color: #c084fc !important; }
+    .kpi-en-cours .kpi-icon { background: rgba(96,165,250,0.15)  !important; color: #60a5fa !important; }
+    .kpi-annulees .kpi-icon { background: rgba(248,113,113,0.15) !important; color: #f87171 !important; }
+
+    // ── Analytiques — KPI summary cards ──────────────────────────────────────
+    .ana-kpi--ca     .ana-kpi-icon { background: rgba(52,211,153,0.15)  !important; color: #34d399 !important; }
+    .ana-kpi--cmd    .ana-kpi-icon { background: rgba(96,165,250,0.15)  !important; color: #60a5fa !important; }
+    .ana-kpi--taux   .ana-kpi-icon { background: rgba(167,139,250,0.15) !important; color: #a78bfa !important; }
+    .ana-kpi--panier .ana-kpi-icon { background: rgba(251,146,60,0.15)  !important; color: #fb923c !important; }
+    .ana-kpi--annul  .ana-kpi-icon { background: rgba(248,113,113,0.15) !important; color: #f87171 !important; }
+    .ana-kpi--livr   .ana-kpi-icon { background: rgba(52,211,153,0.15)  !important; color: #34d399 !important; }
+
+    .ana-kpi-val { color: var(--p-text-color, #f1f5f9) !important; }
+    .ana-kpi-lbl { color: var(--p-text-muted-color, #94a3b8) !important; }
+
+    // ── Analytiques — badges ─────────────────────────────────────────────────
+    .ana-badge--green  { background: rgba(52,211,153,0.15)  !important; color: #6ee7b7 !important; }
+    .ana-badge--blue   { background: rgba(96,165,250,0.15)  !important; color: #93c5fd !important; }
+    .ana-badge--purple { background: rgba(167,139,250,0.15) !important; color: #c4b5fd !important; }
+    .ana-badge--orange { background: rgba(251,146,60,0.15)  !important; color: #fdba74 !important; }
+    .ana-badge--red    { background: rgba(248,113,113,0.15) !important; color: #fca5a5 !important; }
+
+    // ── Analytiques — chart cards & header ───────────────────────────────────
+    .ana-chart-header h3 { color: var(--p-text-color, #f1f5f9) !important; }
+    .ana-refresh-btn {
+        border-color: rgba(255,255,255,0.12) !important;
+        color: var(--p-text-color, #e2e8f0) !important;
+        background: var(--p-surface-800, #1e293b) !important;
+        &:hover { background: var(--p-primary-color, #818cf8) !important; color: #fff !important; }
+    }
+
+    // ── Filtre de date (Dashboard) ────────────────────────────────────────────
+    .dash-filter-banner {
+        background: rgba(99,102,241,0.12) !important;
+        border-color: rgba(99,102,241,0.35) !important;
+        color: var(--p-text-color, #e2e8f0) !important;
+    }
+    .dash-filter-close { color: #818cf8 !important; }
+
+    // ── Audit Log — éléments ─────────────────────────────────────────────────
+    .audit-stat-chip { background: var(--p-primary-color, #818cf8) !important; }
+    .audit-admin-avatar { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
+    .audit-admin-nom   { color: var(--p-text-color, #f1f5f9) !important; }
+    .audit-admin-login { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .audit-date-day    { color: var(--p-text-color, #e2e8f0) !important; }
+    .audit-date-time   { color: var(--p-text-muted-color, #64748b) !important; }
+    .audit-ref         { color: #818cf8 !important; }
+    .audit-id          { color: var(--p-text-muted-color, #64748b) !important; }
+    .audit-desc        { color: var(--p-text-color, #e2e8f0) !important; }
+    .audit-empty       { color: var(--p-text-muted-color, #475569) !important; }
+
+    // Filtre audit
+    .audit-filtres label { color: var(--p-text-muted-color, #94a3b8) !important; }
+
+    // ── Tableaux PrimeNG ─────────────────────────────────────────────────────
+    .p-datatable {
+        .p-datatable-thead > tr > th {
+            background: var(--p-surface-900, #0f172a) !important;
+            color: var(--p-text-muted-color, #94a3b8) !important;
+            border-color: var(--p-surface-700, #334155) !important;
+        }
+        .p-datatable-tbody > tr > td {
+            color: var(--p-text-color, #e2e8f0) !important;
+            border-color: var(--p-surface-700, #1e293b) !important;
+        }
+        .p-datatable-tbody > tr:hover > td {
+            background: rgba(99,102,241,0.06) !important;
+        }
+        .p-paginator {
+            background: var(--p-surface-900, #0f172a) !important;
+            border-color: var(--p-surface-700, #334155) !important;
+            color: var(--p-text-color, #e2e8f0) !important;
+        }
+    }
+
+    // ── Inputs & selects PrimeNG ─────────────────────────────────────────────
+    .p-inputtext {
+        background: var(--p-surface-800, #1e293b) !important;
+        color: var(--p-text-color, #f1f5f9) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+        &::placeholder { color: var(--p-text-muted-color, #64748b) !important; }
+        &:focus { border-color: var(--p-primary-color, #818cf8) !important; }
+    }
+
+    // ── SelectButton (filtre période analytiques) ─────────────────────────────
+    .p-selectbutton .p-button:not(.p-button-outlined):not(.p-highlight) {
+        background: var(--p-surface-800, #1e293b) !important;
+        color: var(--p-text-muted-color, #94a3b8) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+    }
+
+    // ── Breadcrumb ────────────────────────────────────────────────────────────
+    .layout-breadcrumb {
+        background: var(--p-surface-900, #0f172a) !important;
+        border-color: var(--p-surface-700, #1e293b) !important;
+        .p-breadcrumb-item-link { color: var(--p-text-muted-color, #94a3b8) !important; }
+        .p-breadcrumb-item-link:hover { color: var(--p-primary-color, #818cf8) !important; }
+    }
+
+    // ── Footer ───────────────────────────────────────────────────────────────
+    .layout-footer {
+        background: var(--p-surface-900, #0f172a) !important;
+        border-color: var(--p-surface-700, #1e293b) !important;
+        color: var(--p-text-muted-color, #64748b) !important;
+    }
+
+    // ── Sidebar scrollbar ────────────────────────────────────────────────────
+    .layout-sidebar ::-webkit-scrollbar-track { background: var(--p-surface-900, #0f172a); }
+    .layout-sidebar ::-webkit-scrollbar-thumb { background: var(--p-surface-700, #334155); }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // PAGE COMMANDES — overrides dark
+    // ══════════════════════════════════════════════════════════════════════════
+    .kicker { color: #818cf8 !important; }
+
+    .cmd-header h1, .prod-header h1 {
+        color: var(--p-text-color, #f1f5f9) !important;
+    }
+    .cmd-header p, .prod-header p {
+        color: var(--p-text-muted-color, #94a3b8) !important;
+    }
+
+    // Barre de recherche
+    .search-wrap, .search-bar {
+        background: var(--p-surface-800, #1e293b) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+    }
+    .search-wrap input, .search-bar input {
+        color: var(--p-text-color, #f1f5f9) !important;
+        caret-color: var(--p-primary-color, #818cf8);
+        &::placeholder { color: var(--p-text-muted-color, #64748b) !important; }
+    }
+    .search-clear { color: var(--p-text-muted-color, #64748b) !important; }
+    .search-clear:hover { color: var(--p-text-color, #e2e8f0) !important; }
+    .search-spinner { border-color: rgba(129,140,248,.25) !important; border-top-color: #818cf8 !important; }
+
+    // Numéro commande
+    .cmd-numero { color: #818cf8 !important; }
+
+    // Détail commande
+    .detail-label { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .detail-value { color: var(--p-text-color, #f1f5f9) !important; }
+
+    // Lignes produit dans le détail
+    .ligne-item {
+        background: var(--p-surface-800, #1e293b) !important;
+    }
+    .ligne-img { background: var(--p-surface-700, #334155) !important; }
+    .ligne-infos strong { color: var(--p-text-color, #f1f5f9) !important; }
+    .ligne-infos small  { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .ligne-prix         { color: var(--p-text-color, #e2e8f0) !important; }
+    .total-line strong  { color: var(--p-text-color, #f1f5f9) !important; }
+
+    // Heure de commande
+    .date-heure { color: var(--p-text-muted-color, #64748b) !important; }
+
+    // Dialog de suppression
+    .del-dialog .p-dialog-header {
+        background: rgba(239,68,68,0.08) !important;
+        border-bottom-color: rgba(239,68,68,0.2) !important;
+    }
+    .del-icon-wrap {
+        background: rgba(239,68,68,0.1) !important;
+        border-color: rgba(239,68,68,0.3) !important;
+    }
+    .del-title   { color: var(--p-text-color, #f1f5f9) !important; }
+    .del-subtitle{ color: var(--p-text-muted-color, #94a3b8) !important; }
+    .del-warning {
+        color: #f87171 !important;
+        background: rgba(239,68,68,0.1) !important;
+    }
+
+    // Dialog WhatsApp
+    .wa-dialog .p-dialog-header {
+        background: rgba(37,211,102,0.08) !important;
+        border-bottom-color: rgba(37,211,102,0.15) !important;
+    }
+    .wa-client-info {
+        background: rgba(37,211,102,0.08) !important;
+        border-color: rgba(37,211,102,0.2) !important;
+        color: #4ade80 !important;
+    }
+    .wa-label { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .wa-textarea {
+        background: var(--p-surface-800, #1e293b) !important;
+        color: var(--p-text-color, #f1f5f9) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+    }
+    .wa-hint        { color: var(--p-text-muted-color, #64748b) !important; }
+    .wa-admin-actif { color: #93c5fd !important; background: rgba(96,165,250,0.1) !important; }
+
+    // Label dialog statut
+    label[style*="color:#374151"] { color: var(--p-text-muted-color, #94a3b8) !important; }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // PAGE PRODUITS — overrides dark
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // Grille produits
+    .prod-card {
+        background: var(--p-surface-900, #0f172a) !important;
+        border-color: var(--p-surface-700, #1e293b) !important;
+    }
+    .prod-img-wrap { background: var(--p-surface-800, #1e293b) !important; }
+    .prod-info h3  { color: var(--p-text-color, #f1f5f9) !important; }
+    .prod-info small { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .prod-desc     { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .prod-footer strong { color: var(--p-text-color, #f1f5f9) !important; }
+    .empty-state   { color: var(--p-text-muted-color, #475569) !important; }
+
+    // Badges produit
+    .badge-actif           { background: rgba(74,222,128,0.15)  !important; color: #4ade80  !important; }
+    .badge-actif.inactif   { background: rgba(248,113,113,0.15) !important; color: #f87171  !important; }
+    .badge-promo           { background: rgba(251,191,36,0.15)  !important; color: #fbbf24  !important; }
+    .badge-new             { background: rgba(96,165,250,0.15)  !important; color: #60a5fa  !important; }
+
+    // Panel archives
+    .archives-panel {
+        background: var(--p-surface-900, #0f172a) !important;
+        border-color: var(--p-surface-700, #1e293b) !important;
+    }
+
+    // Skeletons produit
+    .prod-skeleton .sk-img  { background: var(--p-surface-800, #1e293b) !important; }
+    .prod-skeleton .sk-line { background: var(--p-surface-700, #334155) !important; }
+
+    // Zone upload image
+    .image-upload-zone {
+        background: var(--p-surface-800, #1e293b) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+    }
+
+    // Pagination produits
+    .page-size-label  { color: var(--p-text-muted-color, #94a3b8) !important; }
+    .page-count-info  { color: var(--p-text-muted-color, #64748b) !important; }
+    .page-size-select {
+        background: var(--p-surface-800, #1e293b) !important;
+        color: var(--p-text-color, #f1f5f9) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+    }
+    // Boutons pagination custom
+    .prod-paginator .p-paginator-prev,
+    .prod-paginator .p-paginator-next {
+        background: var(--p-surface-800, #1e293b) !important;
+        border-color: var(--p-surface-600, #475569) !important;
+        color: var(--p-text-color, #e2e8f0) !important;
+    }
+
+    // Labels formulaire produit
+    .field label, .field-full label, .chk-label {
+        color: var(--p-text-muted-color, #94a3b8) !important;
+    }
+
+    // Stat chip dans le header
+    small[style*="color:#64748b"] { color: var(--p-text-muted-color, #94a3b8) !important; }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // DIALOGS PRIMENG — fond et texte adaptatifs
+    // ══════════════════════════════════════════════════════════════════════════
+    .p-dialog {
+        .p-dialog-header {
+            background: var(--p-surface-900, #0f172a) !important;
+            color: var(--p-text-color, #f1f5f9) !important;
+            border-bottom-color: var(--p-surface-700, #334155) !important;
+        }
+        .p-dialog-content {
+            background: var(--p-surface-900, #0f172a) !important;
+            color: var(--p-text-color, #e2e8f0) !important;
+        }
+        .p-dialog-footer {
+            background: var(--p-surface-900, #0f172a) !important;
+            border-top-color: var(--p-surface-700, #334155) !important;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // OVERLAYS (Select dropdown, DatePicker panel, etc.)
+    // ══════════════════════════════════════════════════════════════════════════
+    .p-select-overlay, .p-datepicker-panel, .p-overlay {
+        background: var(--p-surface-900, #0f172a) !important;
+        border-color: var(--p-surface-700, #334155) !important;
+        color: var(--p-text-color, #f1f5f9) !important;
+    }
+    .p-select-option { color: var(--p-text-color, #f1f5f9) !important; }
+    .p-select-option:hover {
+        background: var(--p-surface-800, #1e293b) !important;
+    }
+    .p-select-option.p-select-option-selected {
+        background: rgba(99,102,241,0.15) !important;
+        color: #a5b4fc !important;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // CARDS GENERIQUES (p-card)
+    // ══════════════════════════════════════════════════════════════════════════
+    .p-card {
+        background: var(--p-surface-900, #0f172a) !important;
+        .p-card-header, .p-card-title { color: var(--p-text-color, #f1f5f9) !important; }
+        .p-card-subtitle { color: var(--p-text-muted-color, #94a3b8) !important; }
+    }
+}
+

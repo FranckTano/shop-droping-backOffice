@@ -14,12 +14,14 @@ public interface CommandeRepository extends JpaRepository<Commande, Long> {
 
     long countByStatut(CommandeStatus statut);
 
-    @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut in (" +
-           "com.shopdropping.backoffice.entity.CommandeStatus.CONFIRMEE, " +
-           "com.shopdropping.backoffice.entity.CommandeStatus.EN_COURS, " +
-           "com.shopdropping.backoffice.entity.CommandeStatus.EXPEDIEE, " +
-           "com.shopdropping.backoffice.entity.CommandeStatus.VALIDEE, " +
-           "com.shopdropping.backoffice.entity.CommandeStatus.LIVREE)")
+    long countByCreatedAtBetween(java.time.LocalDateTime debut, java.time.LocalDateTime fin);
+
+    long countByStatutAndCreatedAtBetween(CommandeStatus statut, java.time.LocalDateTime debut, java.time.LocalDateTime fin);
+
+    @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut = com.shopdropping.backoffice.entity.CommandeStatus.CONFIRMEE and c.createdAt between :debut and :fin")
+    BigDecimal sumChiffreAffairesByPeriode(@Param("debut") java.time.LocalDateTime debut, @Param("fin") java.time.LocalDateTime fin);
+
+    @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut = com.shopdropping.backoffice.entity.CommandeStatus.CONFIRMEE")
     BigDecimal sumChiffreAffaires();
 
     @Query("select coalesce(sum(c.montantTotal), 0) from Commande c where c.statut = com.shopdropping.backoffice.entity.CommandeStatus.LIVREE")
@@ -43,6 +45,57 @@ public interface CommandeRepository extends JpaRepository<Commande, Long> {
             order by date_trunc('day', c.created_at)
             """, nativeQuery = true)
     List<Object[]> commandesParJour();
+
+    // ── KPI : évolution mensuelle complète (12 derniers mois) ──────────────────────
+    @Query(value = """
+            SELECT
+                to_char(date_trunc('month', created_at), 'YYYY-MM')  AS mois,
+                COUNT(*)                                               AS total_commandes,
+                COUNT(*) FILTER (WHERE statut = 'CONFIRMEE')          AS confirmees,
+                COUNT(*) FILTER (WHERE statut = 'ANNULEE')            AS annulees,
+                COUNT(*) FILTER (WHERE statut = 'LIVREE')             AS livrees,
+                COALESCE(SUM(montant_total) FILTER (WHERE statut = 'CONFIRMEE'), 0) AS ca_confirmees
+            FROM commande
+            WHERE created_at >= date_trunc('month', NOW()) - INTERVAL '11 months'
+            GROUP BY date_trunc('month', created_at)
+            ORDER BY date_trunc('month', created_at)
+            """, nativeQuery = true)
+    List<Object[]> evolutionMensuelle();
+
+    // ── KPI : répartition par statut ───────────────────────────────────────────────
+    @Query(value = """
+            SELECT statut, COUNT(*) AS nb
+            FROM commande
+            GROUP BY statut
+            ORDER BY nb DESC
+            """, nativeQuery = true)
+    List<Object[]> repartitionParStatut();
+
+    // ── KPI : top 10 produits par CA (commandes CONFIRMEE) ─────────────────────────
+    @Query(value = """
+            SELECT p.nom,
+                   COALESCE(SUM(lc.quantite), 0)    AS total_vendu,
+                   COALESCE(SUM(lc.prix_total), 0)  AS ca_total
+            FROM ligne_commande lc
+            JOIN produit p  ON lc.produit_id  = p.id
+            JOIN commande c ON lc.commande_id = c.id
+            WHERE c.statut = 'CONFIRMEE'
+            GROUP BY p.id, p.nom
+            ORDER BY ca_total DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<Object[]> topProduits();
+
+    // ── KPI : commandes par jour de semaine (pour heatmap) ─────────────────────────
+    @Query(value = """
+            SELECT TRIM(TO_CHAR(created_at, 'Day')) AS jour,
+                   COUNT(*)                          AS nb
+            FROM commande
+            WHERE created_at >= NOW() - INTERVAL '90 days'
+            GROUP BY TO_CHAR(created_at, 'D'), TRIM(TO_CHAR(created_at, 'Day'))
+            ORDER BY TO_CHAR(created_at, 'D')
+            """, nativeQuery = true)
+    List<Object[]> commandesParJourSemaine();
 
     @Query("select distinct c from Commande c left join fetch c.lignes l left join fetch l.produit order by c.createdAt desc")
     List<Commande> findAllWithLignes();

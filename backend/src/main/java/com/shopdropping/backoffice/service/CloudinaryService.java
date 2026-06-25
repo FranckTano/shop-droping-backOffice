@@ -13,10 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Upload d'images vers Cloudinary via REST API.
@@ -45,10 +49,23 @@ public class CloudinaryService {
     @Value("${cloudinary.folder:shop-dropping/backoffice/produits}")
     private String folder;
 
+    @Value("${file-upload-base-path:#{systemProperties['user.home']}/shop-dropping/uploads}")
+    private String localUploadPath;
+
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private boolean isCloudinaryConfigured() {
+        return cloudName != null && !cloudName.isBlank()
+                && !cloudName.equals("your_cloud_name")
+                && apiKey != null && !apiKey.equals("your_api_key")
+                && apiSecret != null && !apiSecret.equals("your_api_secret");
+    }
 
     public String upload(MultipartFile file) {
         valider(file);
+        if (!isCloudinaryConfigured()) {
+            return uploadLocalement(file);
+        }
         try {
             byte[] bytes = file.getBytes();
             long timestamp = System.currentTimeMillis() / 1000;
@@ -85,6 +102,26 @@ public class CloudinaryService {
 
         } catch (IOException e) {
             throw new IllegalStateException("Impossible de lire le fichier : " + e.getMessage(), e);
+        }
+    }
+
+    private String uploadLocalement(MultipartFile file) {
+        try {
+            Path dir = Paths.get(localUploadPath);
+            Files.createDirectories(dir);
+            String ext = "";
+            String original = file.getOriginalFilename();
+            if (original != null && original.contains(".")) {
+                ext = original.substring(original.lastIndexOf('.'));
+            }
+            String filename = UUID.randomUUID().toString().replace("-", "") + ext;
+            Path dest = dir.resolve(filename);
+            Files.write(dest, file.getBytes());
+            String url = "uploads/" + filename;
+            log.info("[LocalStorage] Image sauvegardée → {}", url);
+            return url;
+        } catch (IOException e) {
+            throw new IllegalStateException("Impossible de sauvegarder l'image localement : " + e.getMessage(), e);
         }
     }
 

@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/uploads/**", "/assets/**").permitAll()
                         .requestMatchers("/api/utilisateurs/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/admin/audit-log/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )

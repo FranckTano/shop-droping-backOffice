@@ -44,6 +44,11 @@ export class AppMenu implements OnInit {
                         label: 'Commandes',
                         icon: 'pi pi-shopping-cart',
                         routerLink: ['/admin/commandes']
+                    },
+                    {
+                        label: 'Analytiques',
+                        icon: 'pi pi-chart-line',
+                        routerLink: ['/admin/analytiques']
                     }
                 ]
             }
@@ -57,6 +62,11 @@ export class AppMenu implements OnInit {
                         label: 'Utilisateurs',
                         icon: 'pi pi-users',
                         routerLink: ['/admin/utilisateurs']
+                    },
+                    {
+                        label: 'Journal d\'audit',
+                        icon: 'pi pi-shield',
+                        routerLink: ['/admin/audit-log']
                     }
                 ]
             });

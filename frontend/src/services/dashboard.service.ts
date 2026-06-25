@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface DashboardStats {
@@ -35,8 +35,15 @@ export class DashboardService {
 
     constructor(private http: HttpClient) {}
 
-    getStats(): Observable<DashboardStats> {
-        return this.http.get<DashboardStats>(`${this.BASE}/stats`);
+    getStats(dateDebut?: Date | null, dateFin?: Date | null): Observable<DashboardStats> {
+        let params = new HttpParams();
+        if (dateDebut) params = params.set('dateDebut', this.formatDate(dateDebut));
+        if (dateFin)   params = params.set('dateFin',   this.formatDate(dateFin));
+        return this.http.get<DashboardStats>(`${this.BASE}/stats`, { params });
+    }
+
+    private formatDate(d: Date): string {
+        return d.toISOString().slice(0, 10);
     }
 
     getCommandesRecentes(): Observable<CommandeRecente[]> {

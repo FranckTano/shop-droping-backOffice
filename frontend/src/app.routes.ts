@@ -55,6 +55,19 @@ export const appRoutes: Routes = [
                 loadComponent: () => import('./app/pages/admin/utilisateurs/admin-utilisateurs.component')
                     .then(c => c.AdminUtilisateursComponent),
                 data: { breadcrumb: 'Utilisateurs' }
+            },
+            {
+                path: 'analytiques',
+                loadComponent: () => import('./app/pages/admin/analytiques/admin-analytiques.component')
+                    .then(c => c.AdminAnalytiquesComponent),
+                data: { breadcrumb: 'Analytiques' }
+            },
+            {
+                path: 'audit-log',
+                canActivate: [superAdminGuard],
+                loadComponent: () => import('./app/pages/admin/audit-log/admin-audit-log.component')
+                    .then(c => c.AdminAuditLogComponent),
+                data: { breadcrumb: 'Journal d\'audit' }
             }
         ]
     },

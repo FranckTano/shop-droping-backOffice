@@ -108,8 +108,19 @@ export class LayoutService {
     });
 
     private initialized = false;
+    private static readonly DARK_MODE_KEY = 'backoffice_dark_mode';
 
     constructor() {
+        // Restore persisted dark mode preference before first render
+        const saved = localStorage.getItem(LayoutService.DARK_MODE_KEY);
+        if (saved === 'true') {
+            this._config.darkTheme   = true;
+            this._config.topbarTheme = 'dark';
+            this._config.menuTheme   = 'dark';
+            this.layoutConfig.set({ ...this._config });
+            document.documentElement.classList.add('app-dark');
+        }
+
         effect(() => {
             const config = this.layoutConfig();
             if (config) {
@@ -125,6 +136,7 @@ export class LayoutService {
                 return;
             }
 
+            localStorage.setItem(LayoutService.DARK_MODE_KEY, String(config.darkTheme));
             this.handleDarkModeTransition(config);
         });
 
