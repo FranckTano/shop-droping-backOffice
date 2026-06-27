@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 import {ButtonModule} from 'primeng/button';
 import {CheckboxModule} from 'primeng/checkbox';
@@ -15,7 +15,6 @@ import {LoginPassword} from "../../models/login-password.model";
 import {CustomValidators} from "../../validators/custom-validators";
 import {AuthService} from "../../services/auth.service";
 import {MessageModule} from "primeng/message";
-import {ApplicationErreur} from "../../models/application-erreur.model";
 import {NgIf} from "@angular/common";
 import {NavigationService} from "../../services/navigation.service";
 import {HttpClient} from "@angular/common/http";
@@ -33,7 +32,7 @@ export class Login implements OnInit {
 		username: new FormControl('', CustomValidators.notBlank),
 		password: new FormControl('', CustomValidators.notBlank),
 	});
-	messageErreur: ApplicationErreur;
+	erreurMessage = '';
 	loading = false;
 
 	// ── Mot de passe oublié ───────────────────────────────────────────────
@@ -60,7 +59,7 @@ export class Login implements OnInit {
 	authentifier() {
 		if (this.formAuthentification.invalid || this.loading) return;
 		this.loading = true;
-		this.messageErreur = null;
+		this.erreurMessage = '';
 		this.authService.authentifier(new LoginPassword(this.formAuthentification.value)).subscribe({
 			next: (data) => {
 				AuthService.updateAccessToken(data.token);
@@ -68,8 +67,19 @@ export class Login implements OnInit {
 				this.navigationService.goToHome();
 			},
 			error: (err) => {
-				this.messageErreur = err.error;
 				this.loading = false;
+				const msg: string = err.error?.message ?? '';
+				if (err.status === 0) {
+					this.erreurMessage = 'Impossible de joindre le serveur. Vérifiez votre connexion.';
+				} else if (err.status === 429) {
+					this.erreurMessage = 'Trop de tentatives échouées. Veuillez réessayer dans quelques minutes.';
+				} else if (err.status === 401) {
+					this.erreurMessage = msg.includes('désactivé')
+						? 'Votre compte est désactivé. Contactez un Super Admin.'
+						: 'Nom d\'utilisateur ou mot de passe incorrect.';
+				} else {
+					this.erreurMessage = msg || 'Une erreur est survenue. Veuillez réessayer.';
+				}
 			}
 		});
 	}
@@ -100,7 +110,13 @@ export class Login implements OnInit {
 			},
 			error: (err) => {
 				this.resetLoading = false;
-				this.resetErreur  = err?.error?.error ?? 'Une erreur est survenue.';
+				if (err.status === 0) {
+					this.resetErreur = 'Impossible de joindre le serveur.';
+				} else if (err.status === 404) {
+					this.resetErreur = 'Aucun compte trouvé avec ce nom d\'utilisateur.';
+				} else {
+					this.resetErreur = err?.error?.error ?? 'Une erreur est survenue. Réessayez.';
+				}
 			}
 		});
 	}

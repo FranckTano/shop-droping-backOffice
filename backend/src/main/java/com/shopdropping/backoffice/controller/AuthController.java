@@ -31,4 +31,5 @@ public class AuthController {
                     .body(Map.of("message", ex.getMessage()));
         }
     }
+
 }

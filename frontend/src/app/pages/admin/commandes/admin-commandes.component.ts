@@ -129,10 +129,16 @@ import { environment } from '@environments/environment';
                 <div class="lignes-list">
                     <div *ngFor="let ligne of cmd.lignes" class="ligne-item">
                         <div class="ligne-img-wrap">
-                            <img [src]="resolveImageUrl(ligne.produitImage)"
+                            <img *ngIf="ligne.produitImage; else noImg"
+                                 [src]="resolveImageUrl(ligne.produitImage)"
                                  [alt]="ligne.produitNom"
                                  (error)="onImgError($event)"
                                  class="ligne-img" />
+                            <ng-template #noImg>
+                                <div class="ligne-img-placeholder">
+                                    <i class="pi pi-image"></i>
+                                </div>
+                            </ng-template>
                         </div>
                         <div class="ligne-infos">
                             <strong>{{ ligne.produitNom }}</strong>
@@ -236,30 +242,42 @@ import { environment } from '@environments/environment';
         </p-dialog>
     `,
     styles: [`
+        /* ── Layout ── */
         .cmd-shell { padding: 1.5rem; font-family: 'Poppins', 'Segoe UI', sans-serif; }
         .kicker { margin: 0; font-size: .72rem; letter-spacing: .14em; color: #6366f1; font-weight: 700; }
         .cmd-header { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem; }
-        .cmd-header h1 { margin: .3rem 0; font-size: 1.6rem; color: #0f172a; }
-        .cmd-header p { margin: 0; color: #64748b; }
+        .cmd-header h1 { margin: .3rem 0; font-size: 1.6rem; color: var(--p-text-color); }
+        .cmd-header p { margin: 0; color: var(--p-text-muted-color); }
         .cmd-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-bottom: 1rem; }
         .filter-group { display: flex; flex-wrap: wrap; gap: .4rem; }
-        .search-wrap { display: flex; align-items: center; gap: .5rem; padding: .5rem .9rem; border: 1px solid rgba(15,23,42,.1); border-radius: 999px; background: #fff; }
-        .search-wrap input { border: none; outline: none; background: transparent; }
+        .search-wrap { display: flex; align-items: center; gap: .5rem; padding: .5rem .9rem; border: 1px solid var(--p-surface-300); border-radius: 999px; background: var(--p-surface-0); }
+        .search-wrap input { border: none; outline: none; background: transparent; color: var(--p-text-color); }
+        .search-wrap input::placeholder { color: var(--p-text-muted-color); }
         .cmd-numero { color: #6366f1; font-family: monospace; }
         .action-btns { display: flex; gap: .2rem; }
+
+        /* ── Detail dialog ── */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
-        .detail-label { margin: 0 0 .2rem; font-size: .78rem; color: #64748b; text-transform: uppercase; }
-        .detail-value { margin: 0; font-weight: 600; color: #0f172a; }
+        .detail-label { margin: 0 0 .2rem; font-size: .78rem; color: var(--p-text-muted-color); text-transform: uppercase; letter-spacing: .05em; }
+        .detail-value { margin: 0; font-weight: 600; color: var(--p-text-color); }
+
+        /* ── Lignes commande ── */
         .lignes-list { display: flex; flex-direction: column; gap: .6rem; }
-        .ligne-item { display: flex; align-items: center; gap: .75rem; padding: .6rem; background: #f8fafc; border-radius: .5rem; }
-        .ligne-img-wrap { flex-shrink: 0; }
-        .ligne-img { width: 72px; height: 72px; border-radius: .5rem; object-fit: cover; background: #e2e8f0; display: block; }
+        .ligne-item { display: flex; align-items: center; gap: .75rem; padding: .7rem; background: var(--p-surface-50); border: 1px solid var(--p-surface-200); border-radius: .6rem; }
+        .ligne-img-wrap { flex-shrink: 0; position: relative; }
+        .ligne-img { width: 72px; height: 72px; border-radius: .5rem; object-fit: cover; background: var(--p-surface-200); display: block; }
+        .ligne-img-placeholder { width: 72px; height: 72px; border-radius: .5rem; background: var(--p-surface-200); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ligne-img-placeholder .pi { font-size: 1.8rem; color: var(--p-text-muted-color); }
         .ligne-infos { flex: 1; min-width: 0; }
-        .ligne-infos strong { display: block; color: #0f172a; }
-        .ligne-infos small { display: block; color: #64748b; font-size: .8rem; }
-        .ligne-prix { display: flex; flex-direction: column; align-items: end; gap: .2rem; color: #334155; white-space: nowrap; flex-shrink: 0; }
-        .total-line { display: flex; justify-content: space-between; font-size: 1.1rem; }
-        .total-line strong { color: #0f172a; }
+        .ligne-infos strong { display: block; color: var(--p-text-color); }
+        .ligne-infos small { display: block; color: var(--p-text-muted-color); font-size: .8rem; }
+        .ligne-prix { display: flex; flex-direction: column; align-items: end; gap: .2rem; color: var(--p-text-color); white-space: nowrap; flex-shrink: 0; }
+        .total-line { display: flex; justify-content: space-between; font-size: 1.1rem; color: var(--p-text-color); }
+        .total-line strong { color: var(--p-primary-color); }
+
+        /* ── Date + heure ── */
+        .date-cell { display: flex; flex-direction: column; line-height: 1.3; }
+        .date-heure { font-size: .75rem; color: var(--p-text-muted-color); font-weight: 500; }
 
         @media (max-width: 640px) {
             .cmd-shell { padding: 1rem; }
@@ -271,30 +289,26 @@ import { environment } from '@environments/environment';
             .ligne-infos small { font-size: .75rem; }
         }
 
-        /* ── Date + heure ── */
-        .date-cell { display: flex; flex-direction: column; line-height: 1.3; }
-        .date-heure { font-size: .75rem; color: #94a3b8; font-weight: 500; }
-
         /* ── Dialog Suppression ── */
         ::ng-deep .del-dialog .p-dialog-header { background: #fff5f5 !important; border-bottom: 1px solid #fed7d7 !important; }
         .del-body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1rem 0; gap: .6rem; }
         .del-icon-wrap { width: 56px; height: 56px; border-radius: 50%; background: #fff5f5; border: 2px solid #feb2b2; display: flex; align-items: center; justify-content: center; margin-bottom: .4rem; }
         .del-icon { font-size: 1.6rem; color: #e53e3e; }
-        .del-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1a202c; }
-        .del-subtitle { margin: 0; font-size: .9rem; color: #4a5568; line-height: 1.5; }
+        .del-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--p-text-color); }
+        .del-subtitle { margin: 0; font-size: .9rem; color: var(--p-text-muted-color); line-height: 1.5; }
         .del-warning { margin: 0; font-size: .82rem; color: #e53e3e; font-weight: 600; background: #fff5f5; padding: .35rem .8rem; border-radius: .4rem; }
 
         /* ── Dialog WhatsApp ── */
         ::ng-deep .wa-dialog .p-dialog { border-radius: 1rem !important; }
         ::ng-deep .wa-dialog .p-dialog-header { background: #f0fdf4 !important; border-bottom: 1px solid #dcfce7 !important; border-radius: 1rem 1rem 0 0 !important; }
         ::ng-deep .wa-dialog .p-dialog-content { padding: 1.25rem 1.5rem !important; }
-        ::ng-deep .wa-dialog .p-dialog-footer { border-top: 1px solid #f1f5f9 !important; padding: .9rem 1.5rem !important; display: flex; justify-content: flex-end; gap: .6rem; }
+        ::ng-deep .wa-dialog .p-dialog-footer { border-top: 1px solid var(--p-surface-200) !important; padding: .9rem 1.5rem !important; display: flex; justify-content: flex-end; gap: .6rem; }
         .wa-body { display: flex; flex-direction: column; gap: .8rem; }
         .wa-client-info { display: flex; align-items: center; gap: .5rem; padding: .55rem .9rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: .6rem; font-size: .85rem; color: #166534; }
-        .wa-label { font-size: .82rem; font-weight: 600; color: #374151; }
-        .wa-textarea { width: 100%; padding: .7rem .9rem; border: 1.5px solid #d1d5db; border-radius: .6rem; font-family: 'Poppins','Segoe UI',sans-serif; font-size: .88rem; color: #111827; resize: vertical; outline: none; transition: border-color .2s; background: #fff; }
+        .wa-label { font-size: .82rem; font-weight: 600; color: var(--p-text-color); }
+        .wa-textarea { width: 100%; padding: .7rem .9rem; border: 1.5px solid var(--p-surface-300); border-radius: .6rem; font-family: 'Poppins','Segoe UI',sans-serif; font-size: .88rem; color: var(--p-text-color); resize: vertical; outline: none; transition: border-color .2s; background: var(--p-surface-0); }
         .wa-textarea:focus { border-color: #25D366; }
-        .wa-hint { font-size: .75rem; color: #9ca3af; }
+        .wa-hint { font-size: .75rem; color: var(--p-text-muted-color); }
         .wa-admin-actif { font-size: .75rem; color: #2563eb; background: #eff6ff; padding: .25rem .6rem; border-radius: .4rem; display: block; margin-top: .2rem; }
         .wa-send-btn {
             display: inline-flex; align-items: center; gap: .45rem;
@@ -302,7 +316,7 @@ import { environment } from '@environments/environment';
             border-radius: .5rem; font-size: .85rem; font-weight: 600;
             text-decoration: none; font-family: 'Poppins','Segoe UI',sans-serif;
             transition: background .2s, transform .15s;
-            cursor: pointer;
+            cursor: pointer; border: none;
         }
         .wa-send-btn:hover { background: #1ebe5c; transform: translateY(-1px); }
     `]
@@ -562,7 +576,7 @@ export class AdminCommandesComponent implements OnInit {
     }
 
     resolveImageUrl(url: string | null): string {
-        if (!url) return '/images/app/login.png';
+        if (!url) return '';
         if (url.startsWith('http')) return url;
         const clean = url.replace(/^\/+/, '');
         if (clean.startsWith('images/')) {
@@ -576,8 +590,14 @@ export class AdminCommandesComponent implements OnInit {
 
     onImgError(event: Event): void {
         const img = event.target as HTMLImageElement;
-        if (img && !img.src.includes('login.png')) {
-            img.src = '/images/app/login.png';
-        }
+        if (!img || img.dataset['errored']) return;
+        img.dataset['errored'] = '1';
+        // Remplace l'image cassée par un placeholder SVG inline (aucune requête réseau)
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">' +
+            '<rect width="72" height="72" rx="8" fill="%23e2e8f0"/>' +
+            '<text x="36" y="42" text-anchor="middle" font-size="28" fill="%2394a3b8">👕</text>' +
+            '</svg>'
+        )}`;
     }
 }

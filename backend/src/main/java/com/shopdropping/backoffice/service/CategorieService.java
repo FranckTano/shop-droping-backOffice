@@ -1,10 +1,13 @@
 package com.shopdropping.backoffice.service;
 
+import com.shopdropping.backoffice.config.CacheConfig;
 import com.shopdropping.backoffice.dto.CategorieDto;
 import com.shopdropping.backoffice.entity.Categorie;
 import com.shopdropping.backoffice.exception.NotFoundException;
 import com.shopdropping.backoffice.repository.CategorieRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +19,19 @@ public class CategorieService {
 
     private final CategorieRepository categorieRepository;
 
+    @Cacheable(CacheConfig.CACHE_CATEGORIES)
     public List<CategorieDto> findAll() {
         return categorieRepository.findAll().stream().map(this::toDto).toList();
     }
 
+    @Cacheable(value = CacheConfig.CACHE_CATEGORIES, key = "#id")
     public CategorieDto findById(Long id) {
         return toDto(categorieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Catégorie introuvable: " + id)));
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public CategorieDto create(CategorieDto request) {
         if (categorieRepository.existsByNom(request.nom())) {
             throw new IllegalArgumentException("Une catégorie avec ce nom existe déjà");
@@ -40,6 +46,7 @@ public class CategorieService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public CategorieDto update(Long id, CategorieDto request) {
         Categorie categorie = categorieRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Catégorie introuvable: " + id));
@@ -53,6 +60,7 @@ public class CategorieService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public void delete(Long id) {
         if (!categorieRepository.existsById(id)) {
             throw new NotFoundException("Catégorie introuvable: " + id);

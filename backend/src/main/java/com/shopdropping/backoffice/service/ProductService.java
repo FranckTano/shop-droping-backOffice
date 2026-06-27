@@ -1,5 +1,6 @@
 package com.shopdropping.backoffice.service;
 
+import com.shopdropping.backoffice.config.CacheConfig;
 import com.shopdropping.backoffice.dto.CreateProduitRequest;
 import com.shopdropping.backoffice.dto.ProduitDto;
 import com.shopdropping.backoffice.dto.UpdateProduitRequest;
@@ -8,6 +9,8 @@ import com.shopdropping.backoffice.exception.NotFoundException;
 import com.shopdropping.backoffice.repository.CategorieRepository;
 import com.shopdropping.backoffice.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +24,17 @@ public class ProductService {
     private final CategorieRepository categorieRepository;
     private final AuditLogService auditLogService;
 
+    @Cacheable(CacheConfig.CACHE_PRODUITS)
     public List<ProduitDto> findAll() {
         return productRepository.findAllWithCategorie().stream().map(this::toDto).toList();
     }
 
+    @Cacheable(value = CacheConfig.CACHE_PRODUITS, key = "'actifs'")
     public List<ProduitDto> findActifs() {
         return productRepository.findActifsWithCategorie().stream().map(this::toDto).toList();
     }
 
+    @Cacheable(value = CacheConfig.CACHE_PRODUITS, key = "'archives'")
     public List<ProduitDto> findArchives() {
         return productRepository.findArchivesWithCategorie().stream().map(this::toDto).toList();
     }
@@ -38,12 +44,14 @@ public class ProductService {
         return productRepository.rechercher(q).stream().map(this::toDto).toList();
     }
 
+    @Cacheable(value = CacheConfig.CACHE_PRODUITS, key = "#id")
     public ProduitDto findById(Long id) {
         return toDto(productRepository.findByIdWithCategorie(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id)));
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_PRODUITS, allEntries = true)
     public ProduitDto create(CreateProduitRequest request) {
         Categorie categorie = resolveCategorie(request.categorieId());
         Product product = Product.builder()
@@ -72,6 +80,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_PRODUITS, allEntries = true)
     public ProduitDto update(Long id, UpdateProduitRequest request) {
         Product product = productRepository.findByIdWithCategorie(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
@@ -100,6 +109,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_PRODUITS, allEntries = true)
     public ProduitDto archiver(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
@@ -111,6 +121,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_PRODUITS, allEntries = true)
     public ProduitDto restaurer(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));
@@ -122,6 +133,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConfig.CACHE_PRODUITS, allEntries = true)
     public void supprimer(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit introuvable: " + id));

@@ -1,5 +1,5 @@
 import {HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
-import {ApplicationConfig, LOCALE_ID} from '@angular/core';
+import {ApplicationConfig, ErrorHandler, LOCALE_ID} from '@angular/core';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import {provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling} from '@angular/router';
 import {providePrimeNG} from 'primeng/config';
@@ -10,6 +10,7 @@ import {JWT_OPTIONS, JwtHelperService, JwtInterceptor} from "@auth0/angular-jwt"
 import {apiInterceptor} from "./interceptors/api.interceptor";
 import {wakeUpInterceptor} from "./interceptors/wake-up.interceptor";
 import {HashLocationStrategy, LocationStrategy} from "@angular/common";
+import {GlobalErrorHandlerService} from "./services/global-error-handler.service";
 
 const MyPreset = definePreset(Material, {
 	semantic: {
@@ -53,6 +54,7 @@ export const appConfig: ApplicationConfig = {
 			theme: {preset: MyPreset, options: {darkModeSelector: '.app-dark'}}
 		}),
 		{ provide: LocationStrategy, useClass: HashLocationStrategy },
-		{ provide: JWT_OPTIONS, useValue: JWT_OPTIONS }
+		{ provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+		{ provide: ErrorHandler, useClass: GlobalErrorHandlerService }
 	]
 };
