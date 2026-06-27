@@ -71,7 +71,7 @@ import { AuthService } from '../../../../services/auth.service';
                         <td><code>{{ u.username }}</code></td>
                         <td>
                             <span *ngIf="u.telephone">{{ u.telephone }}</span>
-                            <span *ngIf="!u.telephone" style="color:#94a3b8;font-size:.8rem">—</span>
+                            <span *ngIf="!u.telephone" class="no-phone">—</span>
                         </td>
                         <td>
                             <p-tag [value]="u.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'"
@@ -136,7 +136,7 @@ import { AuthService } from '../../../../services/auth.service';
                     <label>Téléphone WhatsApp</label>
                     <input pInputText formControlName="telephone" class="w-full" type="tel"
                            placeholder="Ex: +2250799136306" />
-                    <small style="color:#64748b;font-size:.75rem">
+                    <small class="field-hint">
                         Numéro utilisé pour recevoir les commandes clients
                     </small>
                 </div>
@@ -163,31 +163,60 @@ import { AuthService } from '../../../../services/auth.service';
         .users-shell { padding: 1.5rem; font-family: 'Poppins', 'Segoe UI', sans-serif; }
         .kicker { margin: 0; font-size: .72rem; letter-spacing: .14em; color: #dc2626; font-weight: 700; }
         .users-header { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem; }
-        .users-header h1 { margin: .3rem 0; font-size: 1.6rem; color: #0f172a; }
-        .users-header p { margin: 0; color: #64748b; }
+        .users-header h1 { margin: .3rem 0; font-size: 1.6rem; color: var(--p-text-color); }
+        .users-header p { margin: 0; color: var(--p-text-muted-color); }
         .action-btns { display: flex; gap: .2rem; flex-wrap: wrap; }
         .user-form { display: flex; flex-direction: column; gap: .9rem; }
         .field { display: flex; flex-direction: column; gap: .3rem; }
-        .field label { font-size: .85rem; font-weight: 600; color: #374151; }
-        code { font-family: monospace; background: #f1f5f9; padding: .1rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .field label { font-size: .85rem; font-weight: 600; color: var(--p-text-color); }
+        /* Code (login) : fond clair fixe + texte noir fixe, lisible light ET dark */
+        code {
+            font-family: monospace;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: .15rem .5rem; border-radius: 4px; font-size: .85rem; font-weight: 500;
+        }
 
+        /* Bannière admin actif — couleurs semi-transparentes lisibles light et dark */
         .admin-actif-banner {
             display: flex; align-items: center; gap: .6rem;
             padding: .75rem 1rem; margin-bottom: 1.2rem;
-            background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: .75rem;
-            font-size: .88rem; color: #166534;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: .75rem;
+            font-size: .88rem; color: var(--p-text-color);
         }
         .badge-actif-wa {
             display: inline-flex; align-items: center; gap: .3rem;
-            padding: .2rem .55rem; background: #f0fdf4; border: 1px solid #bbf7d0;
-            border-radius: 999px; font-size: .72rem; color: #166534; font-weight: 600; white-space: nowrap;
+            padding: .2rem .55rem;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 999px; font-size: .72rem; color: #16a34a; font-weight: 600; white-space: nowrap;
+        }
+        .no-phone { color: var(--p-text-muted-color); font-size: .8rem; }
+        .field-hint { font-size: .75rem; color: var(--p-text-muted-color); }
+
+        /* Tablette (sidebar en overlay) */
+        @media (max-width: 991px) {
+            .users-shell { padding: 1.25rem; }
+        }
+
+        @media (max-width: 768px) {
+            .users-shell { padding: 1rem; }
+            .users-header { flex-direction: column; }
+            .users-header h1 { font-size: 1.4rem; }
         }
 
         @media (max-width: 640px) {
-            .users-shell { padding: 1rem; }
-            .users-header { flex-direction: column; }
+            .users-shell { padding: .75rem; }
             .users-header button { width: 100%; }
             .users-header h1 { font-size: 1.3rem; }
+        }
+
+        @media (max-width: 480px) {
+            .users-shell { padding: .5rem; }
+            .users-header h1 { font-size: 1.15rem; }
+            .admin-actif-banner { font-size: .8rem; padding: .6rem .8rem; flex-wrap: wrap; }
         }
     `]
 })

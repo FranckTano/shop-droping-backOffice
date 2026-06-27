@@ -7,3 +7,20 @@
     }
 }
 
+/* Réduit le padding sur petits écrans pour maximiser l'espace contenu */
+@media screen and (max-width: 768px) {
+    .layout-content-wrapper {
+        .layout-content {
+            padding: 0.75rem;
+        }
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .layout-content-wrapper {
+        .layout-content {
+            padding: 0.5rem;
+        }
+    }
+}
+

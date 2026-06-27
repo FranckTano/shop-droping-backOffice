@@ -233,14 +233,41 @@ type Periode = '3M' | '6M' | '12M';
         .ana-badge--orange { background:#ffedd5; color:#c2410c; }
         .ana-badge--red    { background:#fee2e2; color:#b91c1c; }
 
+        /* Tablette large (sidebar overlay) */
+        @media (max-width: 991px) {
+            .ana-shell { padding: 1.25rem; }
+            .ana-charts-grid { grid-template-columns: 1fr; }
+            .ana-chart--wide { grid-column: span 1; }
+            .ana-kpi-row { grid-template-columns: repeat(3, 1fr); }
+        }
+
         @media (max-width: 900px) {
             .ana-charts-grid { grid-template-columns: 1fr; }
             .ana-chart--wide { grid-column: span 1; }
             .ana-kpi-row { grid-template-columns: repeat(2, 1fr); }
         }
-        @media (max-width: 520px) {
+
+        @media (max-width: 768px) {
             .ana-shell { padding: 1rem; }
+            .ana-header { flex-direction: column; align-items: flex-start; }
+            .ana-controls { flex-wrap: wrap; width: 100%; }
+            .ana-header h1 { font-size: 1.4rem; }
+            .ana-kpi-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 520px) {
+            .ana-shell { padding: .75rem; }
             .ana-kpi-row { grid-template-columns: 1fr 1fr; }
+            .ana-kpi-val { font-size: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .ana-shell { padding: .5rem; }
+            .ana-header h1 { font-size: 1.15rem; }
+            .ana-kpi-card { padding: .7rem; gap: .6rem; }
+            .ana-kpi-icon { width: 36px; height: 36px; font-size: 1rem; }
+            .ana-chart-card { padding: .85rem; }
+            .ana-chart-header h3 { font-size: .9rem; }
         }
     `]
 })

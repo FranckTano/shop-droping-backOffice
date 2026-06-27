@@ -18,6 +18,7 @@ import {MessageModule} from "primeng/message";
 import {NgIf} from "@angular/common";
 import {NavigationService} from "../../services/navigation.service";
 import {HttpClient} from "@angular/common/http";
+import {LayoutService} from "../layout/service/layout.service";
 
 @Component({
 	selector: 'app-login-2',
@@ -34,6 +35,7 @@ export class Login implements OnInit {
 	});
 	erreurMessage = '';
 	loading = false;
+	showPassword = false;
 
 	// ── Mot de passe oublié ───────────────────────────────────────────────
 	resetVisible      = false;
@@ -46,8 +48,21 @@ export class Login implements OnInit {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly navigationService: NavigationService,
-		private readonly http: HttpClient
+		private readonly http: HttpClient,
+		private readonly layoutService: LayoutService
 	) {}
+
+	isDark(): boolean {
+		return this.layoutService.layoutConfig().darkTheme;
+	}
+
+	toggleDark(): void {
+		this.layoutService.layoutConfig.update(cfg => ({
+			...cfg,
+			darkTheme: !cfg.darkTheme,
+			menuTheme: !cfg.darkTheme ? 'dark' : 'light'
+		}));
+	}
 
 	ngOnInit(): void {
 		if (this.authService.isAuthenticated()) {

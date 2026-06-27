@@ -164,7 +164,7 @@ import { environment } from '@environments/environment';
         <p-dialog [(visible)]="statutVisible" header="Changer le statut"
                   [modal]="true" [style]="{width:'380px'}" [draggable]="false">
             <div class="field" style="padding: 0.5rem 0;">
-                <label style="font-size:0.85rem;font-weight:600;color:#374151;display:block;margin-bottom:0.5rem;">Nouveau statut</label>
+                <label class="statut-label">Nouveau statut</label>
                 <p-dropdown [options]="statutsOptions" [(ngModel)]="nouveauStatut"
                             optionLabel="label" optionValue="value"
                             appendTo="body"
@@ -248,6 +248,7 @@ import { environment } from '@environments/environment';
         .cmd-header { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem; }
         .cmd-header h1 { margin: .3rem 0; font-size: 1.6rem; color: var(--p-text-color); }
         .cmd-header p { margin: 0; color: var(--p-text-muted-color); }
+        .statut-label { font-size: .85rem; font-weight: 600; color: var(--p-text-color); display: block; margin-bottom: .5rem; }
         .cmd-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-bottom: 1rem; }
         .filter-group { display: flex; flex-wrap: wrap; gap: .4rem; }
         .search-wrap { display: flex; align-items: center; gap: .5rem; padding: .5rem .9rem; border: 1px solid var(--p-surface-300); border-radius: 999px; background: var(--p-surface-0); }
@@ -279,14 +280,33 @@ import { environment } from '@environments/environment';
         .date-cell { display: flex; flex-direction: column; line-height: 1.3; }
         .date-heure { font-size: .75rem; color: var(--p-text-muted-color); font-weight: 500; }
 
-        @media (max-width: 640px) {
+        /* Tablette (sidebar en overlay) */
+        @media (max-width: 991px) {
+            .cmd-shell { padding: 1.25rem; }
+        }
+
+        @media (max-width: 768px) {
             .cmd-shell { padding: 1rem; }
+            .cmd-header { flex-direction: column; }
+            .cmd-header h1 { font-size: 1.4rem; }
+            .cmd-toolbar { flex-wrap: wrap; }
+            .filter-group { flex-wrap: wrap; }
+        }
+
+        @media (max-width: 640px) {
+            .cmd-shell { padding: .75rem; }
             .cmd-header h1 { font-size: 1.3rem; }
             .cmd-toolbar { flex-direction: column; align-items: stretch; }
             .search-wrap { width: 100%; }
             .filter-group { justify-content: center; }
             .detail-grid { grid-template-columns: 1fr; }
             .ligne-infos small { font-size: .75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .cmd-shell { padding: .5rem; }
+            .cmd-header h1 { font-size: 1.15rem; }
+            .filter-group button { font-size: .78rem; padding: .3rem .5rem; }
         }
 
         /* ── Dialog Suppression ── */

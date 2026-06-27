@@ -3,6 +3,11 @@
 		<i class="pi pi-shopping-bag" style="font-size:1.3rem; color: var(--primary-color)"></i>
 		<div class="titre p-0 m-0">MOMOAdmin</div>
 	</a>
+	<!-- Bouton dark mode mobile : visible uniquement sur mobile (<992px) car layout-topbar-end est masqué -->
+	<a (click)="toggleDarkMode()" class="dark-toggle-btn dark-toggle-mobile"
+	   [title]="layoutService.isDarkTheme() ? 'Passer en mode clair' : 'Passer en mode sombre'">
+		<i [class]="layoutService.isDarkTheme() ? 'pi pi-sun' : 'pi pi-moon'"></i>
+	</a>
 	<a #menuButton class="layout-menu-button" (click)="onMenuButtonClick()">
 		<i class="pi pi-chevron-right"></i>
 	</a>

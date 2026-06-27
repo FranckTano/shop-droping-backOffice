@@ -76,13 +76,14 @@ interface FiltreAudit {
 
         <!-- ── Tableau ── -->
         <div class="audit-table-card">
+          <div class="audit-table-scroll">
             <p-table [value]="entrees" [loading]="chargement"
                      [rows]="taille" [totalRecords]="totalElements"
                      [lazy]="true" (onLazyLoad)="onLazyLoad($event)"
                      [paginator]="true" [rowsPerPageOptions]="[15,30,50]"
                      paginatorDropdownAppendTo="body"
                      styleClass="p-datatable-sm p-datatable-gridlines"
-                     [tableStyle]="{'min-width':'900px'}">
+                     [tableStyle]="{'min-width':'700px'}">
 
                 <ng-template pTemplate="header">
                     <tr>
@@ -147,82 +148,157 @@ interface FiltreAudit {
                 </ng-template>
 
             </p-table>
+          </div><!-- /audit-table-scroll -->
         </div>
 
     </div>
     `,
     styles: [`
+        /* ── Shell ── */
         .audit-shell { padding: 1.5rem; font-family:'Poppins','Segoe UI',sans-serif; }
 
         /* ── Header ── */
         .audit-kicker { margin:0; font-size:.72rem; letter-spacing:.14em; color:#6366f1; font-weight:700; }
         .audit-header { display:flex; justify-content:space-between; align-items:flex-start;
-                        flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }
-        .audit-header h1 { margin:.3rem 0; font-size:1.6rem; color:var(--text-color,#0f172a); }
-        .audit-header p { margin:0; color:var(--text-color-secondary,#64748b); font-size:.88rem; }
+                        flex-wrap:wrap; gap:.75rem; margin-bottom:1.25rem; }
+        .audit-header h1 { margin:.25rem 0; font-size:1.5rem; color:var(--p-text-color); }
+        .audit-header p  { margin:0; color:var(--p-text-muted-color); font-size:.86rem; }
         .audit-stats { display:flex; align-items:center; }
-        .audit-stat-chip { display:flex; align-items:center; gap:.4rem; background:var(--primary-color,#6366f1);
-                           color:#fff; padding:.4rem .8rem; border-radius:999px; font-size:.82rem; font-weight:600; }
+        .audit-stat-chip { display:flex; align-items:center; gap:.4rem; background:var(--p-primary-color);
+                           color:#fff; padding:.35rem .75rem; border-radius:999px; font-size:.8rem; font-weight:600; }
 
         /* ── Filtres ── */
-        .audit-filtres { display:flex; align-items:flex-end; flex-wrap:wrap; gap:.8rem;
-                         background:var(--surface-card,#fff);
-                         border:1px solid var(--surface-border,rgba(15,23,42,.08));
-                         border-radius:1rem; padding:1rem 1.2rem; margin-bottom:1.2rem; }
-        .audit-filtre-group { display:flex; flex-direction:column; gap:.3rem; }
-        .audit-filtre-group label { font-size:.75rem; font-weight:600; color:var(--text-color-secondary,#64748b);
-                                    text-transform:uppercase; letter-spacing:.05em; }
-        .audit-input { width:210px; font-size:.87rem; }
-        :host ::ng-deep .audit-select { width:190px; font-size:.87rem; }
-        .audit-reset-btn { height:38px; align-self:flex-end; }
+        .audit-filtres {
+            display: flex; align-items: flex-end; flex-wrap: wrap; gap: .75rem;
+            background: var(--p-surface-card);
+            border: 1px solid var(--p-surface-200);
+            border-radius: .875rem; padding: .9rem 1rem; margin-bottom: 1rem;
+        }
+        .audit-filtre-group {
+            display: flex; flex-direction: column; gap: .4rem;
+            min-width: 0; flex: 1 1 180px;
+        }
+        .audit-filtre-group label {
+            font-size: .73rem; font-weight: 600; color: var(--p-text-muted-color);
+            text-transform: uppercase; letter-spacing: .05em;
+        }
+        .audit-input { width: 100%; font-size: .86rem; }
+        :host ::ng-deep .audit-select { width: 100% !important; font-size: .86rem; }
+        :host ::ng-deep .audit-select .p-select { width: 100% !important; }
+        .audit-reset-btn { height: 38px; align-self: flex-end; flex-shrink: 0; }
 
-        /* ── Table ── */
-        .audit-table-card { background:var(--surface-card,#fff);
-                            border:1px solid var(--surface-border,rgba(15,23,42,.08));
-                            border-radius:1rem; overflow:hidden; }
+        /* ── Table wrapper (scroll horizontal mobile) ── */
+        .audit-table-card {
+            background:var(--p-surface-card);
+            border:1px solid var(--p-surface-200);
+            border-radius:.875rem;
+            overflow: hidden;
+        }
+        .audit-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
         :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-            background:var(--surface-section,#f8fafc) !important;
-            font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-            color:var(--text-color-secondary,#64748b) !important;
-            padding:.7rem .9rem !important;
-            border-bottom: 2px solid var(--surface-border,rgba(15,23,42,.08)) !important;
+            background:var(--p-surface-50) !important;
+            font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+            color:var(--p-text-muted-color) !important;
+            padding:.65rem .85rem !important;
+            border-bottom: 2px solid var(--p-surface-200) !important;
+            white-space: nowrap;
         }
         :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-            padding: .6rem .9rem !important; vertical-align:middle;
-            border-bottom: 1px solid var(--surface-border,rgba(15,23,42,.06)) !important;
+            padding: .55rem .85rem !important; vertical-align:middle;
+            border-bottom: 1px solid var(--p-surface-100) !important;
         }
         :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover > td {
-            background: var(--highlight-bg, rgba(99,102,241,0.04)) !important;
+            background: color-mix(in srgb, var(--p-primary-color) 5%, transparent) !important;
         }
 
         /* ── Cells ── */
-        .audit-date-day { display:block; font-size:.82rem; color:var(--text-color,#374151); font-weight:500; }
-        .audit-date-time { display:block; font-size:.72rem; color:var(--text-color-secondary,#94a3b8); }
+        .audit-date-day  { display:block; font-size:.8rem; color:var(--p-text-color); font-weight:500; }
+        .audit-date-time { display:block; font-size:.7rem; color:var(--p-text-muted-color); }
 
-        .audit-admin { display:flex; align-items:center; gap:.6rem; }
-        .audit-admin-avatar { width:30px; height:30px; border-radius:50%;
+        .audit-admin { display:flex; align-items:center; gap:.5rem; }
+        .audit-admin-avatar { width:28px; height:28px; border-radius:50%;
                               background:linear-gradient(135deg,#6366f1,#8b5cf6);
                               color:#fff; display:flex; align-items:center; justify-content:center;
-                              font-size:.7rem; font-weight:700; flex-shrink:0; }
-        .audit-admin-nom { font-size:.82rem; font-weight:600; color:var(--text-color,#374151); }
-        .audit-admin-login { font-size:.7rem; color:var(--text-color-secondary,#94a3b8); }
+                              font-size:.65rem; font-weight:700; flex-shrink:0; }
+        .audit-admin-nom   { font-size:.8rem; font-weight:600; color:var(--p-text-color); white-space:nowrap; }
+        .audit-admin-login { font-size:.68rem; color:var(--p-text-muted-color); }
 
-        .audit-ref { font-size:.82rem; color:var(--primary-color,#6366f1); font-weight:500; }
-        .audit-id { color:var(--text-color-secondary,#94a3b8); font-size:.78rem; }
-        .audit-desc { font-size:.83rem; color:var(--text-color,#374151); max-width:340px;
+        .audit-ref  { font-size:.8rem; color:var(--p-primary-color); font-weight:500; }
+        .audit-id   { color:var(--p-text-muted-color); font-size:.76rem; }
+        .audit-desc { font-size:.81rem; color:var(--p-text-color); max-width:300px;
                       white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
         .audit-empty { display:flex; flex-direction:column; align-items:center;
-                       justify-content:center; gap:.7rem; padding:3rem 1rem;
-                       color:var(--text-color-secondary,#94a3b8); }
+                       justify-content:center; gap:.65rem; padding:2.5rem 1rem;
+                       color:var(--p-text-muted-color); }
 
-        /* ── Pagination dark override ── */
-        :host ::ng-deep .p-paginator { border-top: 1px solid var(--surface-border,rgba(15,23,42,.08)) !important;
-                                       background:var(--surface-card,#fff) !important; }
+        /* ── Paginator ── */
+        :host ::ng-deep .p-paginator {
+            border-top: 1px solid var(--p-surface-200) !important;
+            background:var(--p-surface-card) !important;
+            flex-wrap: wrap;
+            gap: .5rem;
+            padding: .5rem !important;
+        }
 
-        @media(max-width:700px) {
-            .audit-filtres { flex-direction:column; }
-            .audit-input, :host ::ng-deep .audit-select { width:100% !important; }
+        /* ═══════════════════════════════ RESPONSIVE ═══════════════════════════════ */
+
+        /* Tablette large (≤ 991px) — sidebar overlay, contenu pleine largeur */
+        @media(max-width: 991px) {
+            .audit-shell { padding: 1.25rem; }
+            .audit-filtres { gap: .6rem; }
+            .audit-filtre-group { flex: 1 1 200px; }
+        }
+
+        /* Tablette (≤ 768px) — 2 filtres par ligne */
+        @media(max-width: 768px) {
+            .audit-shell { padding: 1rem; }
+            .audit-header { flex-direction: column; align-items: flex-start; gap: .5rem; }
+            .audit-header h1 { font-size: 1.3rem; }
+            .audit-header p  { font-size: .82rem; }
+            .audit-filtres { gap: .6rem; padding: .85rem; }
+            .audit-filtre-group { flex: 1 1 calc(50% - .3rem); }
+        }
+
+        /* Mobile (≤ 600px) — filtres style formulaire pleine largeur */
+        @media(max-width: 600px) {
+            .audit-shell { padding: .75rem; }
+            /* align-items: stretch est crucial : en flex-direction:column,
+               flex-end alignerait les items à droite (axe transversal = horizontal) */
+            .audit-filtres {
+                flex-direction: column;
+                align-items: stretch;
+                gap: .6rem;
+                padding: .8rem;
+            }
+            /* width:100% car flex: 1 1 100% en mode colonne = 100% de hauteur, pas largeur */
+            .audit-filtre-group { flex: none; width: 100%; }
+            /* reset align-self:flex-end qui pousserait le btn à droite en mode colonne */
+            .audit-reset-btn { width: 100%; justify-content: center; align-self: auto; }
+            .audit-header h1 { font-size: 1.2rem; }
+            .audit-stat-chip { font-size: .75rem; }
+            .audit-desc { max-width: 140px; }
+            .audit-table-card { border-left: none; border-right: none; border-radius: 0; margin: 0 -.75rem; }
+        }
+
+        /* Très petit (≤ 480px) */
+        @media(max-width: 480px) {
+            .audit-shell { padding: .6rem; }
+            .audit-filtres { padding: .6rem; }
+            .audit-header h1 { font-size: 1.15rem; }
+            .audit-kicker { font-size: .68rem; }
+            :host ::ng-deep .p-paginator { padding: .4rem .3rem !important; }
+            :host ::ng-deep .p-paginator .p-paginator-page,
+            :host ::ng-deep .p-paginator .p-paginator-prev,
+            :host ::ng-deep .p-paginator .p-paginator-next { min-width: 2rem !important; height: 2rem !important; }
+        }
+
+        /* Très petit (≤ 400px) */
+        @media(max-width: 400px) {
+            .audit-shell { padding: .5rem; }
+            .audit-filtres { padding: .5rem; }
+            .audit-header h1 { font-size: 1.05rem; }
         }
     `]
 })

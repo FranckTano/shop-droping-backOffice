@@ -42,11 +42,27 @@
 	border-radius: 50%;
 	transition: background 0.2s, color 0.2s, transform 0.3s;
 	font-size: 1.1rem;
-	/* Hérite la couleur du topbar theme actif (blanc en custom/dark) */
 	color: var(--topbar-item-text-color, #ffffff) !important;
+	cursor: pointer;
 
 	&:hover {
 		background: var(--topbar-item-hover-bg, rgba(255,255,255,0.15)) !important;
 		transform: rotate(20deg);
+	}
+}
+
+/* ── Bouton dark mode mobile (dans layout-topbar-start) ── */
+/* Caché sur desktop : le bouton dans layout-topbar-end prend le relais */
+.dark-toggle-mobile {
+	display: none !important;
+}
+
+/* Sur mobile (<992px) layout-topbar-end est masqué → on affiche ce bouton */
+@media (max-width: 991px) {
+	.dark-toggle-mobile {
+		display: flex !important;
+		margin-left: auto;
+		margin-right: 0.4rem;
+		flex-shrink: 0;
 	}
 }

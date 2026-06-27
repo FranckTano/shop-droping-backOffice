@@ -259,15 +259,34 @@ import { AuthService } from '../../../../services/auth.service';
 
         .recentes-section h2 { font-size: 1.2rem; color: var(--text-color, #0f172a); margin-bottom: 1rem; }
 
-        @media (max-width: 640px) {
+        /* Tablette (sidebar en overlay, contenu full-width) */
+        @media (max-width: 991px) {
+            .admin-dashboard { padding: 1.25rem; }
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+        }
+
+        @media (max-width: 768px) {
             .admin-dashboard { padding: 1rem; }
             .dash-header { flex-direction: column; }
             .dash-controls { width: 100%; flex-direction: column; align-items: stretch; }
-            .dash-header h1 { font-size: 1.4rem; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            :host ::ng-deep .dash-datepicker { width: 100% !important; }
+            .dash-header h1 { font-size: 1.5rem; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .admin-dashboard { padding: .75rem; }
+            .dash-header h1 { font-size: 1.3rem; }
             .quick-links { flex-direction: column; }
             .ql-card { width: 100%; }
-            :host ::ng-deep .dash-datepicker { width: 100% !important; }
+        }
+
+        @media (max-width: 480px) {
+            .admin-dashboard { padding: .5rem; }
+            .dash-header h1 { font-size: 1.15rem; }
+            .kpi-value { font-size: 1.1rem; }
+            .kpi-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+            .recentes-section h2 { font-size: 1rem; }
         }
     `]
 })
